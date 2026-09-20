@@ -164,151 +164,208 @@
     <script src="/js/utils.js"></script>
     <script src="/js/app.js"></script>
     <script>
-        const pendingReports = [{
-                id: 'CW-2026-241',
-                issue: 'Road Repair',
-                cat: 'Infrastructure',
-                barangay: 'Aplaya',
-                name: 'Juan Dela Cruz',
-                phone: '0912 345 6789',
-                date: 'May 21, 2026',
-                time: '10:30 AM',
-                desc: 'Deep potholes along the road causing difficulty for vehicles.'
-            },
-            {
-                id: 'CW-2026-240',
-                issue: 'Illegal Dumping',
-                cat: 'Environmental',
-                barangay: 'Carmen',
-                name: 'Maria Santos',
-                phone: '0998 765 4321',
-                date: 'May 21, 2026',
-                time: '09:15 AM',
-                desc: 'Garbage is illegally dumped near the river side.'
-            },
-            {
-                id: 'CW-2026-239',
-                issue: 'Road Graveling',
-                cat: 'Infrastructure',
-                barangay: 'Zone II',
-                name: 'Pedro Reyes',
-                phone: '0917 111 2222',
-                date: 'May 20, 2026',
-                time: '04:45 PM',
-                desc: 'Gravel road needs re-graveling, surface is heavily worn.'
-            },
-            {
-                id: 'CW-2026-238',
-                issue: 'Blocked Canal',
-                cat: 'Infrastructure',
-                barangay: 'Magsaysay',
-                name: 'Ana Lopez',
-                phone: '0933 222 1111',
-                date: 'May 20, 2026',
-                time: '02:20 PM',
-                desc: 'Canal is clogged causing water to overflow in the area.'
-            },
-            {
-                id: 'CW-2026-237',
-                issue: 'Garbage Collection',
-                cat: 'Environmental',
-                barangay: 'Badiang',
-                name: 'Ramon Garcia',
-                phone: '0906 888 7777',
-                date: 'May 20, 2026',
-                time: '11:05 AM',
-                desc: 'Missed garbage collection schedule for two consecutive weeks.'
-            },
-            {
-                id: 'CW-2026-236',
-                issue: 'Streetlight / Light Pole Concern',
-                cat: 'Infrastructure',
-                barangay: 'Zone III',
-                name: 'Carla Mendoza',
-                phone: '0915 333 4444',
-                date: 'May 19, 2026',
-                time: '08:30 PM',
-                desc: 'Streetlight is not working at night.'
-            },
-        ];
+        requireAuth();
 
-        let filtered = [...pendingReports];
+        // ── State ────────────────────────────────────────────────────────────
+        let allReports = []; // full list from API
+        let filtered = []; // after search / filter
+        let currentPage = 1;
+        const perPage = 10;
 
+        // ── Stat counter ──────────────────────────────────────────────────────
+        function updateStat(count) {
+            const el = document.querySelector('.pending-stat-val');
+            if (el) el.textContent = count;
+        }
+
+        // ── Render table rows ─────────────────────────────────────────────────
         function render() {
             const tbody = document.getElementById('pendingTableBody');
-            tbody.innerHTML = filtered.map(r => `
-    <tr>
-      <td><span class="ref-id">${r.id}</span></td>
-      <td>
-        <img class="table-photo" src="${getPhotoUrl(r.issue)}" alt="${r.issue}"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-             style="display:block"/>
-        <div class="table-photo-placeholder" style="display:none">
-          <span class="material-symbols-outlined">image</span>
-        </div>
-      </td>
-      <td>
-        <div class="table-issue">
-          <span class="table-issue-name">${r.issue}</span>
-          <span class="table-issue-desc">${r.desc}</span>
-        </div>
-      </td>
-      <td>${Utils.categoryBadge(r.cat)}</td>
-      <td>${r.barangay}</td>
-      <td>
-        <div class="submitter-cell">
-          <div class="submitter-avatar"><span class="material-symbols-outlined">person</span></div>
-          <div class="submitter-info">
-            <span class="submitter-name">${r.name}</span>
-            <span class="submitter-phone">${r.phone}</span>
-          </div>
-        </div>
-      </td>
-      <td>
-        <div style="font-size:13px;color:var(--gray-700)">${r.date}</div>
-        <div style="font-size:11px;color:var(--gray-400)">${r.time}</div>
-      </td>
-      <td>
-        <a href="report-details.html?id=${encodeURIComponent(r.id)}" class="btn-view">
-          <span class="material-symbols-outlined">visibility</span> View
-        </a>
-      </td>
-    </tr>
-  `).join('');
-            document.getElementById('showingLabel').textContent = `Showing 1 to ${filtered.length} of 24 results`;
+            const start = (currentPage - 1) * perPage;
+            const page = filtered.slice(start, start + perPage);
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                      <td colspan="8" style="text-align:center;padding:40px 20px;color:var(--gray-400);">
+                        <span class="material-symbols-outlined" style="font-size:36px;display:block;margin-bottom:8px;">inbox</span>
+                        No pending reports found.
+                      </td>
+                    </tr>`;
+                document.getElementById('showingLabel').textContent = 'No results';
+                renderPagination();
+                return;
+            }
+
+            tbody.innerHTML = page.map(r => {
+                const citizen = r.citizen || {};
+                const name = citizen.fullName || citizen.full_name || '—';
+                const phone = citizen.phoneNumber || citizen.phone || '—';
+                const date = r.submittedAt ?
+                    new Date(r.submittedAt).toLocaleDateString('en-PH', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                    }) :
+                    '—';
+                const time = r.submittedAt ?
+                    new Date(r.submittedAt).toLocaleTimeString('en-PH', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) :
+                    '';
+                const photo = r.imageUrl || r.photo_url;
+                const photoCell = photo ?
+                    `<img class="table-photo" src="${photo}" alt="${r.issue || r.concern}"
+                            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+                            style="display:block"/>
+                       <div class="table-photo-placeholder" style="display:none">
+                         <span class="material-symbols-outlined">image</span>
+                       </div>` :
+                    `<div class="table-photo-placeholder">
+                         <span class="material-symbols-outlined">image</span>
+                       </div>`;
+
+                return `
+                <tr>
+                  <td><span class="ref-id">${r.referenceNumber || r.reference_number || '—'}</span></td>
+                  <td>${photoCell}</td>
+                  <td>
+                    <div class="table-issue">
+                      <span class="table-issue-name">${r.issue || r.concern || '—'}</span>
+                      <span class="table-issue-desc">${(r.description || '').substring(0, 70)}${(r.description || '').length > 70 ? '…' : ''}</span>
+                    </div>
+                  </td>
+                  <td>${Utils.categoryBadge(r.category)}</td>
+                  <td>${r.barangay || '—'}</td>
+                  <td>
+                    <div class="submitter-cell">
+                      <div class="submitter-avatar"><span class="material-symbols-outlined">person</span></div>
+                      <div class="submitter-info">
+                        <span class="submitter-name">${name}</span>
+                        <span class="submitter-phone">${phone}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div style="font-size:13px;color:var(--gray-700)">${date}</div>
+                    <div style="font-size:11px;color:var(--gray-400)">${time}</div>
+                  </td>
+                  <td>
+                    <a href="report-details.html?id=${r.id}" class="btn-view">
+                      <span class="material-symbols-outlined">visibility</span> View
+                    </a>
+                  </td>
+                </tr>`;
+            }).join('');
+
+            const showing = `Showing ${start + 1}–${Math.min(start + perPage, filtered.length)} of ${filtered.length} results`;
+            document.getElementById('showingLabel').textContent = showing;
             renderPagination();
         }
 
+        // ── Pagination ────────────────────────────────────────────────────────
         function renderPagination() {
+            const total = Math.ceil(filtered.length / perPage);
             const pg = document.getElementById('pagination');
-            pg.innerHTML = `
-    <button class="page-btn"><span class="material-symbols-outlined">chevron_left</span></button>
-    <button class="page-btn active">1</button>
-    <button class="page-btn">2</button>
-    <button class="page-btn">3</button>
-    <button class="page-btn">4</button>
-    <button class="page-btn"><span class="material-symbols-outlined">chevron_right</span></button>
-  `;
+            if (total <= 1) {
+                pg.innerHTML = '';
+                return;
+            }
+
+            let html = `<button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                          <span class="material-symbols-outlined">chevron_left</span>
+                        </button>`;
+            for (let i = 1; i <= total; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+            }
+            html += `<button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage === total ? 'disabled' : ''}>
+                       <span class="material-symbols-outlined">chevron_right</span>
+                     </button>`;
+            pg.innerHTML = html;
         }
 
-        // Search + filter
-        const doFilter = Utils.debounce(() => {
-            const q = document.getElementById('searchInput').value.toLowerCase();
+        function goPage(n) {
+            const total = Math.ceil(filtered.length / perPage);
+            if (n < 1 || n > total) return;
+            currentPage = n;
+            render();
+        }
+
+        // ── Search + filter ────────────────────────────────────────────────────
+        function applyFilter() {
+            const q = (document.getElementById('searchInput').value || '').toLowerCase();
             const cat = document.getElementById('catFilter').value;
             const brgy = document.getElementById('brgyFilter').value;
-            filtered = pendingReports.filter(r =>
-                (!q || r.issue.toLowerCase().includes(q) || r.barangay.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)) &&
-                (!cat || r.cat === cat) &&
-                (!brgy || r.barangay === brgy)
-            );
+            filtered = allReports.filter(r => {
+                const issue = (r.issue || r.concern || '').toLowerCase();
+                const barangay = (r.barangay || '').toLowerCase();
+                const name = ((r.citizen || {}).fullName || (r.citizen || {}).full_name || '').toLowerCase();
+                const matchQ = !q || issue.includes(q) || barangay.includes(q) || name.includes(q);
+                const matchCat = !cat || r.category === cat;
+                const matchBrgy = !brgy || r.barangay === brgy;
+                return matchQ && matchCat && matchBrgy;
+            });
+            currentPage = 1;
             render();
-        }, 250);
+        }
 
+        const doFilter = Utils.debounce(applyFilter, 250);
         document.getElementById('searchInput').addEventListener('input', doFilter);
-        document.getElementById('catFilter').addEventListener('change', doFilter);
-        document.getElementById('brgyFilter').addEventListener('change', doFilter);
+        document.getElementById('catFilter').addEventListener('change', applyFilter);
+        document.getElementById('brgyFilter').addEventListener('change', applyFilter);
 
-        render();
+        // ── Load from real API ─────────────────────────────────────────────────
+        async function loadPendingReports() {
+            // Show skeleton while loading
+            Skeleton.injectTableRows('pendingTableBody', 6, 8);
+            updateStat('…');
+
+            try {
+                // Fetch Submitted + Pending Validation statuses in parallel
+                const [subRes, pendRes] = await Promise.all([
+                    Api.get('/api/admin/citizen-reports', {
+                        status: 'Submitted',
+                        limit: 200
+                    }),
+                    Api.get('/api/admin/citizen-reports', {
+                        status: 'Pending Validation',
+                        limit: 200
+                    }),
+                ]);
+
+                const submitted = (subRes && subRes.data && subRes.data.data) ? subRes.data.data : [];
+                const pending = (pendRes && pendRes.data && pendRes.data.data) ? pendRes.data.data : [];
+
+                // Merge, de-duplicate by id, sort newest first
+                const seen = new Set();
+                allReports = [...submitted, ...pending]
+                    .filter(r => {
+                        if (seen.has(r.id)) return false;
+                        seen.add(r.id);
+                        return true;
+                    })
+                    .sort((a, b) => new Date(b.submittedAt || b.created_at) - new Date(a.submittedAt || a.created_at));
+
+                filtered = [...allReports];
+                updateStat(allReports.length);
+                render();
+
+            } catch (err) {
+                document.getElementById('pendingTableBody').innerHTML = `
+                    <tr>
+                      <td colspan="8" style="text-align:center;padding:40px 20px;color:var(--gray-400);">
+                        <span class="material-symbols-outlined" style="font-size:36px;display:block;margin-bottom:8px;">wifi_off</span>
+                        Could not load reports. Check your connection.
+                      </td>
+                    </tr>`;
+                updateStat('—');
+            }
+        }
+
+        // ── Auto-refresh every 30s so new reports appear without manual reload ─
+        loadPendingReports();
+        setInterval(loadPendingReports, 30000);
     </script>
 </body>
 

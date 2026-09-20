@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/routes/app_routes.dart';
-import '../../core/state/app_state.dart';
 import '../../core/utils/helpers.dart';
 import '../../widgets/navigation/app_bar.dart';
+import '../../services/report_service.dart';
+import '../../widgets/common/app_dialog.dart';
 import '_report_stepper.dart';
 
 class ReportReviewScreen extends StatefulWidget {
@@ -17,42 +21,45 @@ class ReportReviewScreen extends StatefulWidget {
 
 class _ReportReviewScreenState extends State<ReportReviewScreen> {
   bool _confirmed = false;
-  bool _isSubmitting = false;
 
   void _submit() async {
     if (!_confirmed) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-              'Please confirm the information is accurate.'),
-          backgroundColor: const Color(0xFFDC2626),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10)),
-          margin: const EdgeInsets.all(16),
-        ),
+      AppDialog.error(
+        context,
+        title: 'Confirmation Required',
+        message: 'Please tick the box to confirm the information is accurate before submitting.',
+        actionLabel: 'OK, Got It',
       );
       return;
     }
-    setState(() => _isSubmitting = true);
-    await Future.delayed(const Duration(milliseconds: 1500));
+
+    AppDialog.loading(context, message: 'Submitting your report…');
+
+    final result = await ReportService.instance.submitReport(widget.reportData);
+
     if (!mounted) return;
+    AppDialog.hide(context);
 
-    final refNumber = AppHelpers.generateRefNumber();
-    final submittedData = {
-      ...widget.reportData,
-      'referenceNumber': refNumber,
-      'submittedAt': DateTime.now().toIso8601String(),
-    };
-    final newReport = AppState.buildFromFormData(submittedData);
-    AppState().addReport(newReport);
-
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      AppRoutes.reportSubmitted,
-      (r) => r.settings.name == AppRoutes.home,
-      arguments: submittedData,
-    );
+    if (result.report != null) {
+      // Success — navigate to submitted screen
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.reportSubmitted,
+        (r) => r.settings.name == AppRoutes.home,
+        arguments: {
+          ...widget.reportData,
+          'referenceNumber': result.report!.referenceNumber,
+          'submittedAt': result.report!.submittedAt.toIso8601String(),
+        },
+      );
+    } else {
+      AppDialog.error(
+        context,
+        title: 'Submission Failed',
+        message: result.error ?? 'Could not submit your report. Please check your connection and try again.',
+        actionLabel: 'Try Again',
+      );
+    }
   }
 
   @override
@@ -69,16 +76,13 @@ class _ReportReviewScreenState extends State<ReportReviewScreen> {
     final landmark = data['landmark'] as String? ?? '';
     final additionalDetails = data['additionalDetails'] as String? ??
         data['description'] as String? ?? '';
-    final rawSeverity = data['severity'] as String? ?? 'Medium';
-    final severity = AppHelpers.normaliseSeverity(rawSeverity);
     final hasPhoto = data['hasPhoto'] == true;
+    final photoFile = data['photoFile'] as XFile?;
 
     final catColor = AppHelpers.getCategoryColor(category);
     final catBg = AppHelpers.getCategoryBgColor(category);
     final catIcon = AppHelpers.getCategoryIcon(category);
     final concernIcon = AppHelpers.getConcernIcon(concern);
-    final severityColor = AppHelpers.getSeverityColor(severity);
-    final severityBg = AppHelpers.getSeverityBgColor(severity);
 
     // Build full address string
     final addressParts = <String>[];
@@ -175,24 +179,41 @@ class _ReportReviewScreenState extends State<ReportReviewScreen> {
                         _ReviewRow(
                           icon: Icons.camera_alt_rounded,
                           label: 'Photo',
-                          child: hasPhoto
-                              ? Container(
-                                  height: 56,
-                                  width: 72,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF1A2A3A),
-                                    borderRadius: BorderRadius.circular(10),
+                          child: hasPhoto && photoFile != null
+                              ? GestureDetector(
+                                  onTap: () => showDialog(
+                                    context: context,
+                                    barrierColor:
+                                        Colors.black.withOpacity(0.92),
+                                    builder: (_) => GestureDetector(
+                                      onTap: () =>
+                                          Navigator.of(context).pop(),
+                                      child: Scaffold(
+                                        backgroundColor: Colors.transparent,
+                                        body: Center(
+                                          child: InteractiveViewer(
+                                            child: Image.file(
+                                                File(photoFile.path)),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                  child: const Icon(Icons.image_rounded,
-                                      color: AppColors.white, size: 26),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.file(
+                                      File(photoFile.path),
+                                      width: 80,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                                 )
                               : Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(
-                                        Icons.warning_amber_rounded,
-                                        color: Color(0xFFF59E0B),
-                                        size: 16),
+                                    const Icon(Icons.warning_amber_rounded,
+                                        color: Color(0xFFF59E0B), size: 16),
                                     const SizedBox(width: 6),
                                     Text(
                                       'No photo attached',
@@ -261,17 +282,6 @@ class _ReportReviewScreenState extends State<ReportReviewScreen> {
                           ),
                         ),
                         _RowDivider(),
-
-                        // Severity row
-                        _ReviewRow(
-                          icon: Icons.shield_outlined,
-                          label: 'Severity',
-                          child: _Chip(
-                            label: severity,
-                            color: severityColor,
-                            bg: severityBg,
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -370,7 +380,7 @@ class _ReportReviewScreenState extends State<ReportReviewScreen> {
                 Expanded(
                   flex: 2,
                   child: ElevatedButton(
-                    onPressed: _isSubmitting ? null : _submit,
+                    onPressed: _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: AppColors.white,
@@ -380,15 +390,7 @@ class _ReportReviewScreenState extends State<ReportReviewScreen> {
                       elevation: 2,
                       shadowColor: AppColors.primary.withOpacity(0.3),
                     ),
-                    child: _isSubmitting
-                        ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                color: AppColors.white),
-                          )
-                        : Text(
+                    child: Text(
                             'Submit Concern',
                             style: GoogleFonts.inter(
                               fontSize: 15,

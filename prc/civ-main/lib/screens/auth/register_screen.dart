@@ -8,6 +8,8 @@ import '../../core/state/app_state.dart';
 import '../../core/utils/validators.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/buttons/primary_button.dart';
+import '../../widgets/common/app_dialog.dart';
+import '../../widgets/common/skeleton.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -34,6 +36,7 @@ class _RegisterScreenState extends State<RegisterScreen>
   String? _selectedBarangay;
   bool _agreedToTerms = false;
   bool _isLoading = false;
+  bool _isInitializing = true; // shows skeleton while screen animates in
 
   // ── Animations ────────────────────────────────────────────────────────────
   late AnimationController _animController;
@@ -52,6 +55,13 @@ class _RegisterScreenState extends State<RegisterScreen>
             .animate(CurvedAnimation(
                 parent: _animController, curve: Curves.easeOutCubic));
     _animController.forward();
+
+    // Dismiss skeleton once the entrance animation finishes
+    _animController.addStatusListener((status) {
+      if (status == AnimationStatus.completed && mounted) {
+        setState(() => _isInitializing = false);
+      }
+    });
 
     // Pre-fill phone if passed from OTP screen (stripped of +63 prefix)
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -94,30 +104,29 @@ class _RegisterScreenState extends State<RegisterScreen>
     if (!_formKey.currentState!.validate()) return;
 
     if (_selectedBarangay == null) {
-      _showSnack('Please select your home barangay', isError: true);
+      _showError('Please select your home barangay.');
       return;
     }
     if (!_pinReady) {
-      _showSnack('Please enter a 6-digit PIN', isError: true);
+      _showError('Please enter a 6-digit PIN.');
       return;
     }
     if (!_confirmReady) {
-      _showSnack('Please confirm your 6-digit PIN', isError: true);
+      _showError('Please confirm your 6-digit PIN.');
       return;
     }
     if (_pin != _confirmPin) {
       setState(() => _pinMismatch = true);
-      _showSnack('PINs do not match. Please try again.', isError: true);
+      _showError('PINs do not match. Please try again.');
       return;
     }
     if (!_agreedToTerms) {
-      _showSnack(
-          'Please agree to the Privacy Policy and Terms of Service',
-          isError: true);
+      _showError('Please agree to the Privacy Policy and Terms of Service.');
       return;
     }
 
-    setState(() => _isLoading = true);
+    // Show loading modal — blocks UI while request is in-flight
+    AppDialog.loading(context, message: 'Creating your account...');
 
     final phone = '+63${_phoneCtrl.text.replaceAll(' ', '')}';
 
@@ -130,36 +139,57 @@ class _RegisterScreenState extends State<RegisterScreen>
     );
 
     if (!mounted) return;
-    setState(() => _isLoading = false);
+
+    // Dismiss loading modal
+    AppDialog.hide(context);
 
     if (result.success && result.user != null) {
-      // Registration succeeded — update AppState and go to Home
-      await AppState().onLoginSuccess(result.user!);
-      if (!mounted) return;
-      Navigator.pushNamedAndRemoveUntil(
+      // Show success modal, then navigate home when user taps Continue
+      await AppDialog.success(
         context,
-        AppRoutes.home,
-        (route) => false,
+        title: 'Account Created!',
+        message:
+            'Welcome to CivilWatch, ${result.user!.fullName.split(' ').first}.\n'
+            'You can now report concerns in your barangay.',
+        actionLabel: 'Continue',
+        onAction: () async {
+          await AppState().onLoginSuccess(result.user!);
+          if (!mounted) return;
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.home,
+            (route) => false,
+          );
+        },
       );
     } else {
-      _showSnack(
-        result.error ?? 'Registration failed. Please try again.',
-        isError: true,
+      final msg = result.error ?? 'Registration failed. Please try again.';
+
+      // Friendly label for duplicate-phone error from Laravel
+      final isDuplicate = msg.toLowerCase().contains('already registered') ||
+          msg.toLowerCase().contains('already been taken');
+
+      await AppDialog.error(
+        context,
+        title: isDuplicate ? 'Number Already Registered' : 'Registration Failed',
+        message: isDuplicate
+            ? 'This mobile number already has an account.\nPlease sign in instead.'
+            : msg,
+        actionLabel: isDuplicate ? 'Sign In' : 'Try Again',
+        onAction: isDuplicate
+            ? () => Navigator.pop(context) // back to login
+            : null,
       );
     }
   }
 
-  void _showSnack(String msg, {required bool isError}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(msg),
-        backgroundColor:
-            isError ? const Color(0xFFDC2626) : AppColors.primary,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(16),
-      ),
+  // ── Error dialog helper ───────────────────────────────────────────────────
+  void _showError(String msg) {
+    AppDialog.error(
+      context,
+      title: 'Check your details',
+      message: msg,
+      actionLabel: 'OK, Got It',
     );
   }
 
@@ -179,6 +209,10 @@ class _RegisterScreenState extends State<RegisterScreen>
                   // ── Header bar ──────────────────────────────────────────
                   _RegisterHeader(),
 
+                  // ── Skeleton while animating in ─────────────────────────
+                  if (_isInitializing)
+                    const Expanded(child: RegisterSkeleton())
+                  else
                   // ── Scrollable body ─────────────────────────────────────
                   Expanded(
                     child: SingleChildScrollView(
@@ -379,7 +413,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                           PrimaryButton(
                             label: 'Create Account',
                             icon: Icons.check_circle_outline_rounded,
-                            isLoading: _isLoading,
+                            isLoading: false,
                             onPressed: _register,
                             backgroundColor: AppColors.primary,
                             borderRadius: 16,

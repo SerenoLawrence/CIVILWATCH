@@ -30,7 +30,11 @@ function removeToken() {
 
 function getUser() {
     const raw = localStorage.getItem('cw_user');
-    try { return raw ? JSON.parse(raw) : null; } catch { return null; }
+    try {
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
 }
 
 function setUser(user) {
@@ -58,8 +62,10 @@ async function apiFetch(endpoint, options = {}) {
 
     const headers = {
         'Content-Type': 'application/json',
-        'Accept':       'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        'Accept': 'application/json',
+        ...(token ? {
+            'Authorization': `Bearer ${token}`
+        } : {}),
         ...(options.headers || {}),
     };
 
@@ -76,7 +82,11 @@ async function apiFetch(endpoint, options = {}) {
     }
 
     const data = await response.json();
-    return { ok: response.ok, status: response.status, data };
+    return {
+        ok: response.ok,
+        status: response.status,
+        data
+    };
 }
 
 // ----------------------------------------------------------------
@@ -109,7 +119,10 @@ function setFieldError(fieldId, errorId, message) {
 }
 
 function clearFieldErrors(fields) {
-    fields.forEach(({ fieldId, errorId }) => {
+    fields.forEach(({
+        fieldId,
+        errorId
+    }) => {
         const field = document.getElementById(fieldId);
         const error = document.getElementById(errorId);
         if (field) field.classList.remove('is-error');
@@ -135,7 +148,9 @@ function populateTopbar() {
 
 async function handleLogout() {
     try {
-        await apiFetch('/logout', { method: 'POST' });
+        await apiFetch('/logout', {
+            method: 'POST'
+        });
     } catch (e) {
         // Even if the API call fails, still clear local storage
     }
@@ -155,21 +170,26 @@ if (loginForm) {
         window.location.href = '/dashboard.html';
     }
 
-    loginForm.addEventListener('submit', async function (e) {
+    loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        const emailEl    = document.getElementById('email');
+        const emailEl = document.getElementById('email');
         const passwordEl = document.getElementById('password');
-        const loginBtn   = document.getElementById('loginBtn');
+        const loginBtn = document.getElementById('loginBtn');
 
-        const email    = emailEl.value.trim();
+        const email = emailEl.value.trim();
         const password = passwordEl.value;
 
         // Clear previous errors
         hideAlert('loginError');
-        clearFieldErrors([
-            { fieldId: 'email',    errorId: 'emailError'    },
-            { fieldId: 'password', errorId: 'passwordError' },
+        clearFieldErrors([{
+                fieldId: 'email',
+                errorId: 'emailError'
+            },
+            {
+                fieldId: 'password',
+                errorId: 'passwordError'
+            },
         ]);
 
         // Basic client-side validation (server also validates)
@@ -190,31 +210,60 @@ if (loginForm) {
 
         if (hasError) return;
 
-        // Disable button while loading
+        // Show loading modal while request is in-flight
+        if (typeof CwModal !== 'undefined') CwModal.loading('Signing you in...');
         loginBtn.disabled = true;
-        loginBtn.textContent = 'Logging in...';
 
         try {
             const result = await apiFetch('/login', {
                 method: 'POST',
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({
+                    email,
+                    password
+                }),
             });
+
+            if (typeof CwModal !== 'undefined') CwModal.hide();
 
             if (result.data.success) {
                 // Save token and user info
                 setToken(result.data.data.token);
                 setUser(result.data.data.user);
-                // Redirect to dashboard
-                window.location.href = '/dashboard.html';
+
+                // Show brief success modal then redirect
+                if (typeof CwModal !== 'undefined') {
+                    const name = result.data.data.user ? .name ? .split(' ')[0] || 'Admin';
+                    CwModal.success('Welcome back!', `Logged in as ${name}. Redirecting…`, {
+                        actionLabel: 'Continue',
+                        onAction: () => {
+                            window.location.href = '/dashboard.html';
+                        },
+                    });
+                    // Auto-redirect after 1.4s even without clicking
+                    setTimeout(() => {
+                        window.location.href = '/dashboard.html';
+                    }, 1400);
+                } else {
+                    window.location.href = '/dashboard.html';
+                }
             } else {
-                showAlert('loginError', result.data.message || 'Login failed.');
+                const msg = result.data.message || 'Login failed. Check your credentials.';
+                if (typeof CwModal !== 'undefined') {
+                    CwModal.error('Login Failed', msg);
+                } else {
+                    showAlert('loginError', msg);
+                }
             }
 
         } catch (err) {
-            showAlert('loginError', 'Network error. Please check your connection.');
+            if (typeof CwModal !== 'undefined') {
+                CwModal.hide();
+                CwModal.error('Connection Error', 'Could not reach the server. Check your connection.');
+            } else {
+                showAlert('loginError', 'Network error. Please check your connection.');
+            }
         } finally {
             loginBtn.disabled = false;
-            loginBtn.textContent = 'Login';
         }
     });
 }

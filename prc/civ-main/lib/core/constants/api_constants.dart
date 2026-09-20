@@ -1,15 +1,18 @@
 /// All API endpoint constants for the CivilWatch Laravel backend.
 ///
-/// Base URL targets Flutter Web on Chrome — both Flutter and Laravel
-/// run on the same machine so 127.0.0.1 works directly.
+/// Base URL targets your local machine's LAN IP so both the browser
+/// AND a real Android phone on the same WiFi can reach Laravel.
 ///
-/// When testing on a real Android device on the same WiFi, change
-/// baseUrl to http://10.10.10.87:8000/api  (your machine's local IP).
+/// Your machine IP: 10.0.7.127  (confirmed via ipconfig)
+/// Laravel runs on port 8000 via: php artisan serve --host=0.0.0.0 --port=8000
+///
+/// ⚠️  If your IP changes (e.g. different WiFi), update baseUrl here.
+///     Run `ipconfig` on Windows to find your new IPv4 address.
 class ApiConstants {
   ApiConstants._();
 
   // ── Base ────────────────────────────────────────────────────────────────
-  static const String baseUrl = 'http://127.0.0.1:8000/api';
+  static const String baseUrl = 'http://10.0.7.127:8000/api';
 
   // ── Health ──────────────────────────────────────────────────────────────
   static const String ping = '$baseUrl/ping';

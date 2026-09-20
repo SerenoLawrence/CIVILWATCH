@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Mobile;
 use App\Http\Controllers\Controller;
 use App\Models\Citizen;
 use App\Models\OtpCode;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class MobileAuthController extends Controller
 {
@@ -160,26 +162,61 @@ class MobileAuthController extends Controller
     // ─────────────────────────────────────────────────────────────────────
     public function register(Request $request): JsonResponse
     {
-        $request->validate([
-            'fullName' => ['required', 'string', 'max:150', function ($attr, $val, $fail) {
-                if (count(array_filter(explode(' ', trim($val)))) < 2) {
-                    $fail('Please enter both first and last name.');
-                }
-            }],
-            'email'    => 'nullable|email|max:191|unique:citizens,email',
-            'barangay' => ['required', 'string', 'in:' . implode(',', self::BARANGAYS)],
-            'pin'      => ['required', 'string', 'regex:/^\d{6}$/'],
-            'phone'    => 'required|string|unique:citizens,phone',
-        ]);
+        $normalized = $this->normalizePhone($request->phone ?? '');
 
-        $citizen = Citizen::create([
-            'full_name' => $request->fullName,
-            'email'     => $request->email,
-            'phone'     => $this->normalizePhone($request->phone),
-            'barangay'  => $request->barangay,
-            'city'      => 'Digos City',
-            'pin_hash'  => Hash::make($request->pin),
-        ]);
+        // ── Validation ────────────────────────────────────────────────────
+        try {
+            $request->validate([
+                'fullName' => ['required', 'string', 'max:150', function ($attr, $val, $fail) {
+                    if (count(array_filter(explode(' ', trim($val)))) < 2) {
+                        $fail('Please enter both your first and last name.');
+                    }
+                }],
+                'email'    => 'nullable|email|max:191|unique:citizens,email',
+                'barangay' => ['required', 'string', 'in:' . implode(',', self::BARANGAYS)],
+                'pin'      => ['required', 'string', 'regex:/^\d{6}$/'],
+                'phone'    => [
+                    'required', 'string',
+                    function ($attr, $val, $fail) use ($normalized) {
+                        if (Citizen::where('phone', $normalized)->exists()) {
+                            $fail('This mobile number is already registered. Please sign in instead.');
+                        }
+                    },
+                ],
+            ]);
+        } catch (ValidationException $e) {
+            // Return first validation error as a clean, user-friendly message
+            $first = collect($e->errors())->flatten()->first();
+            return response()->json([
+                'success' => false,
+                'message' => $first,
+                'errors'  => $e->errors(),
+            ], 422);
+        }
+
+        // ── Create citizen + token ────────────────────────────────────────
+        try {
+            $citizen = Citizen::create([
+                'full_name' => $request->fullName,
+                'email'     => $request->email,
+                'phone'     => $normalized,
+                'barangay'  => $request->barangay,
+                'city'      => 'Digos City',
+                'pin_hash'  => Hash::make($request->pin),
+            ]);
+        } catch (QueryException $e) {
+            // Safety net for any race-condition duplicate key violation
+            if ($e->errorInfo[1] === 1062) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This mobile number is already registered. Please sign in instead.',
+                ], 422);
+            }
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration failed. Please try again.',
+            ], 500);
+        }
 
         $token = $citizen->createToken('mobile')->plainTextToken;
 

@@ -64,6 +64,89 @@ const Api = {
         }
         return res.json();
     },
+
+    // ── Action helper ─────────────────────────────────────────
+    // Use for any user-triggered mutation (validate, assign, status
+    // update, delete) that needs loading → success/error feedback.
+    //
+    // Example:
+    //   await Api.action('POST', '/api/admin/citizen-reports/5/validate', {}, {
+    //     loading: 'Validating report...',
+    //     success: 'Report validated and published.',
+    //     errorTitle: 'Validation failed',
+    //   });
+    //
+    // Options:
+    //   loading      {string}   loading modal message
+    //   success      {string}   success modal message (falsy = toast only)
+    //   successTitle {string}   success modal title   (default 'Done!')
+    //   errorTitle   {string}   error modal title     (default 'Request Failed')
+    //   onSuccess    {function} called after user dismisses success modal
+    //   silent       {boolean}  suppress all modals (for background calls)
+    // ─────────────────────────────────────────────────────────
+    async action(method, url, body = {}, opts = {}) {
+        const {
+            loading = 'Processing...',
+                success = null,
+                successTitle = 'Done!',
+                errorTitle = 'Request Failed',
+                onSuccess = null,
+                silent = false,
+        } = opts;
+
+        if (!silent) CwModal.loading(loading);
+
+        try {
+            let json;
+            const m = method.toUpperCase();
+            if (m === 'GET') json = await this.get(url, body);
+            else if (m === 'POST') json = await this.post(url, body);
+            else if (m === 'PUT') json = await this.put(url, body);
+            else if (m === 'DELETE') json = await this.delete(url);
+            else throw new Error(`Unknown method: ${method}`);
+
+            if (!silent) CwModal.hide();
+
+            // json === null means 401 redirect already happened
+            if (json === null) return null;
+
+            if (json.success === false) {
+                const msg = json.message || 'An unexpected error occurred.';
+                if (!silent) {
+                    CwModal.error(errorTitle, msg);
+                } else {
+                    Utils.showToast(msg, 'error');
+                }
+                return null;
+            }
+
+            // Success
+            if (!silent && success) {
+                CwModal.success(successTitle, success, {
+                    onAction: onSuccess
+                });
+            } else if (!silent && success === null && onSuccess) {
+                // No modal requested — just fire the callback
+                onSuccess();
+            } else if (!silent && onSuccess) {
+                onSuccess();
+            }
+
+            if (!silent && success) return json; // caller waits for modal dismiss
+            return json;
+
+        } catch (err) {
+            if (!silent) {
+                CwModal.hide();
+                CwModal.error(
+                    errorTitle,
+                    'Could not reach the server. Check your connection and try again.'
+                );
+            }
+            console.error('[Api.action]', method, url, err);
+            return null;
+        }
+    },
 };
 
 // ── Auth Guard ────────────────────────────────────────────────
@@ -417,8 +500,10 @@ const App = {
         if (badge) badge.textContent = '';
         const countBadge = document.getElementById('notifCountBadge');
         if (countBadge) countBadge.textContent = '0';
-        if (typeof Utils !== 'undefined') Utils.showToast('All notifications marked as read', 'success');
-        Api.post('/api/notifications/read-all').catch(() => {});
+        Utils.showToast('All notifications marked as read', 'success');
+        Api.action('POST', '/api/notifications/read-all', {}, {
+            silent: true
+        }).catch(() => {});
     },
 
     // ── Dark Mode ─────────────────────────────────────────────
@@ -451,10 +536,14 @@ const App = {
     // ── Logout ────────────────────────────────────────────────
     logout(e) {
         if (e) e.preventDefault();
-        Api.post('/api/logout').catch(() => {});
-        ['cw_token', 'cw_role', 'cw_name', 'cw_title', 'cw_email'].forEach(k => localStorage.removeItem(k));
-        const depth = window.location.pathname.includes('/offices/') ? '../../' : '';
-        window.location.href = depth + 'index.html';
+        CwModal.loading('Logging out...');
+        Api.post('/api/logout')
+            .catch(() => {})
+            .finally(() => {
+                ['cw_token', 'cw_role', 'cw_name', 'cw_title', 'cw_email'].forEach(k => localStorage.removeItem(k));
+                const depth = window.location.pathname.includes('/offices/') ? '../../' : '';
+                window.location.href = depth + 'index.html';
+            });
     },
 
     // ── Notifications from API ────────────────────────────────

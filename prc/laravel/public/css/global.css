@@ -868,3 +868,274 @@ html {
 html[data-theme="dark"] {
     color-scheme: dark;
 }
+
+
+/* ════════════════════════════════════════════════════════════
+   CwModal — Loading / Success / Error modal
+   ════════════════════════════════════════════════════════════ */
+
+#cwModalShell {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9990;
+}
+
+#cwModalShell.cw-modal--active {
+    display: block;
+}
+
+.cw-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.48);
+    animation: cwFadeIn 0.18s ease;
+}
+
+.cw-modal-wrap {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    pointer-events: none;
+}
+
+/* ── Box shell ────────────────────────────────────────────── */
+.cw-modal-box {
+    background: var(--white, #fff);
+    border-radius: 20px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+    padding: 36px 32px 28px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    pointer-events: all;
+    opacity: 0;
+    transform: scale(0.94) translateY(8px);
+    transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cw-modal-box.cw-modal-box--visible {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+/* ── Icon wrapper ─────────────────────────────────────────── */
+.cw-modal-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+}
+
+.cw-modal-box--loading .cw-modal-icon-wrap {
+    background: #EFF6FF;
+}
+
+.cw-modal-box--success .cw-modal-icon-wrap {
+    background: #F0FDF4;
+}
+
+.cw-modal-box--error .cw-modal-icon-wrap {
+    background: #FEF2F2;
+}
+
+/* ── Spinner (loading) ────────────────────────────────────── */
+.cw-modal-spinner {
+    width: 34px;
+    height: 34px;
+    border: 3.5px solid #BFDBFE;
+    border-top-color: #2563EB;
+    border-radius: 50%;
+    animation: cwSpin 0.75s linear infinite;
+}
+
+/* ── Icon (success / error) ───────────────────────────────── */
+.cw-modal-icon {
+    font-size: 38px;
+    font-variation-settings: 'FILL'1;
+}
+
+.cw-modal-icon--success {
+    color: #16A34A;
+}
+
+.cw-modal-icon--error {
+    color: #DC2626;
+}
+
+/* ── Text ─────────────────────────────────────────────────── */
+.cw-modal-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--gray-900, #0F172A);
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.cw-modal-message {
+    font-size: 13px;
+    color: var(--gray-500, #64748B);
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+/* ── Action button ────────────────────────────────────────── */
+.cw-modal-actions {
+    margin-top: 24px;
+}
+
+.cw-modal-btn {
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font-family, 'Inter', sans-serif);
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s ease, transform 0.12s ease;
+}
+
+.cw-modal-btn:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+.cw-modal-btn:active {
+    transform: translateY(0);
+}
+
+.cw-modal-btn--success {
+    background: #16A34A;
+    color: #fff;
+}
+
+.cw-modal-btn--error {
+    background: #DC2626;
+    color: #fff;
+}
+
+/* ── Keyframes ────────────────────────────────────────────── */
+@keyframes cwSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes cwFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ── Dark mode overrides ──────────────────────────────────── */
+[data-theme="dark"] .cw-modal-box {
+    background: #1E2330;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="dark"] .cw-modal-title {
+    color: #F1F5F9;
+}
+
+[data-theme="dark"] .cw-modal-message {
+    color: #94A3B8;
+}
+
+[data-theme="dark"] .cw-modal-box--loading .cw-modal-icon-wrap {
+    background: rgba(37, 99, 235, 0.15);
+}
+
+[data-theme="dark"] .cw-modal-box--success .cw-modal-icon-wrap {
+    background: rgba(22, 163, 74, 0.15);
+}
+
+[data-theme="dark"] .cw-modal-box--error .cw-modal-icon-wrap {
+    background: rgba(220, 38, 38, 0.15);
+}
+
+[data-theme="dark"] .cw-modal-spinner {
+    border-color: rgba(37, 99, 235, 0.25);
+    border-top-color: #3B82F6;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   Skeleton loader
+   ════════════════════════════════════════════════════════════ */
+
+/* Base shimmer block */
+.sk-box {
+    display: inline-block;
+    background: linear-gradient(90deg,
+            #E2E8F0 25%,
+            #F1F5F9 50%,
+            #E2E8F0 75%);
+    background-size: 200% 100%;
+    animation: skShimmer 1.4s ease-in-out infinite;
+    border-radius: 6px;
+    vertical-align: middle;
+}
+
+/* Full-width block (default for table cells, text lines) */
+.sk-cell {
+    padding: 4px 0;
+}
+
+.sk-cell .sk-box {
+    display: block;
+}
+
+/* Skeleton table row */
+.sk-row td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-100, #F1F5F9);
+}
+
+/* Skeleton stat card */
+.sk-card {
+    background: var(--white, #fff);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--gray-100, #F1F5F9);
+}
+
+/* Shimmer keyframe */
+@keyframes skShimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Dark mode skeletons */
+[data-theme="dark"] .sk-box {
+    background: linear-gradient(90deg,
+            #2A3147 25%,
+            #323A52 50%,
+            #2A3147 75%);
+    background-size: 200% 100%;
+    animation: skShimmer 1.4s ease-in-out infinite;
+}
+
+[data-theme="dark"] .sk-row td {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .sk-card {
+    background: #1E2330;
+    border-color: rgba(255, 255, 255, 0.06);
+}

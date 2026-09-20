@@ -69,7 +69,6 @@ class _ReportLocationScreenState extends State<ReportLocationScreen> {
   // ── user-entered fields ───────────────────────────────────────────────────
   final _landmarkCtrl = TextEditingController();
   final _detailsCtrl = TextEditingController();
-  String _severity = 'Medium';
 
   // ── map controller ────────────────────────────────────────────────────────
   final _mapController = MapController();
@@ -312,7 +311,7 @@ class _ReportLocationScreenState extends State<ReportLocationScreen> {
       'landmark': _landmarkCtrl.text.trim(),
       'additionalDetails': _detailsCtrl.text.trim(),
       'description': _detailsCtrl.text.trim(), // backward-compat
-      'severity': _severity,
+      'severity': 'Moderate', // set by admin when assigning office
     });
   }
 
@@ -555,45 +554,6 @@ class _ReportLocationScreenState extends State<ReportLocationScreen> {
                       counterStyle: GoogleFonts.inter(
                           fontSize: 11, color: AppColors.textHint),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // ── Severity ───────────────────────────────────────────
-                  _SectionLabel(
-                    icon: Icons.shield_outlined,
-                    label: 'Severity',
-                    color: AppColors.textPrimary,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'How serious is this concern?',
-                    style: GoogleFonts.inter(
-                        fontSize: 12, color: AppColors.textSecondary),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      _SeverityChip(
-                        label: 'Low',
-                        color: const Color(0xFF16A34A),
-                        isSelected: _severity == 'Low',
-                        onTap: () => setState(() => _severity = 'Low'),
-                      ),
-                      const SizedBox(width: 10),
-                      _SeverityChip(
-                        label: 'Medium',
-                        color: const Color(0xFFF59E0B),
-                        isSelected: _severity == 'Medium',
-                        onTap: () => setState(() => _severity = 'Medium'),
-                      ),
-                      const SizedBox(width: 10),
-                      _SeverityChip(
-                        label: 'High',
-                        color: const Color(0xFFDC2626),
-                        isSelected: _severity == 'High',
-                        onTap: () => setState(() => _severity = 'High'),
-                      ),
-                    ],
                   ),
                   const SizedBox(height: 8),
                 ],
@@ -928,68 +888,6 @@ class _AddressField extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Severity chip
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _SeverityChip extends StatelessWidget {
-  final String label;
-  final Color color;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _SeverityChip({
-    required this.label,
-    required this.color,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? color.withOpacity(0.12) : AppColors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected ? color : AppColors.divider,
-              width: isSelected ? 2 : 1,
-            ),
-          ),
-          child: Column(
-            children: [
-              Icon(
-                label == 'Low'
-                    ? Icons.arrow_downward_rounded
-                    : label == 'Medium'
-                        ? Icons.remove_rounded
-                        : Icons.arrow_upward_rounded,
-                color: isSelected ? color : AppColors.textHint,
-                size: 18,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight:
-                      isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected ? color : AppColors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

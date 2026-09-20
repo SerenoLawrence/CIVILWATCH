@@ -1,3 +1,5 @@
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import '../core/constants/api_constants.dart';
 import '../core/network/api_client.dart';
 import '../models/report.dart';
@@ -72,22 +74,35 @@ class ReportService {
         'barangay':    (data['barangay'] ?? '').toString(),
         'city':        'Digos City',
         'province':    'Davao del Sur',
-        'severity':    (data['severity'] ?? 'Moderate').toString(),
-        if (data['landmark'] != null)
+        'severity':    'Moderate', // always default; admin sets priority
+        if (data['landmark'] != null && data['landmark'].toString().isNotEmpty)
           'landmark': data['landmark'].toString(),
-        if (data['purok'] != null)
+        if (data['purok'] != null && data['purok'].toString().isNotEmpty)
           'purok': data['purok'].toString(),
         if (data['latitude'] != null)
           'lat': data['latitude'].toString(),
         if (data['longitude'] != null)
           'lng': data['longitude'].toString(),
+        if (data['address'] != null && data['address'].toString().isNotEmpty)
+          'street': data['address'].toString(),
       };
+
+      // Attach real photo file if one was picked
+      final List<http.MultipartFile> files = [];
+      final photoFile = data['photoFile'];
+      if (photoFile != null && photoFile is XFile) {
+        final mf = await http.MultipartFile.fromPath(
+          'photo',
+          photoFile.path,
+          filename: photoFile.name,
+        );
+        files.add(mf);
+      }
 
       final res = await _api.postMultipart(
         ApiConstants.reports,
         fields,
-        // Photo file support will be added when image_picker is wired
-        // files: data['photo'] != null ? [await _buildPhotoFile(data['photo'])] : [],
+        files: files,
       );
 
       return (

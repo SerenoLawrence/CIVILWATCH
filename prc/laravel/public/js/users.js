@@ -23,31 +23,35 @@ let currentEditId = null; // null = adding new, number = editing
 // ----------------------------------------------------------------
 // DOM References
 // ----------------------------------------------------------------
-const tableBody       = document.getElementById('usersTableBody');
-const searchInput     = document.getElementById('searchInput');
-const searchBtn       = document.getElementById('searchBtn');
-const clearBtn        = document.getElementById('clearBtn');
-const addUserBtn      = document.getElementById('addUserBtn');
+const tableBody = document.getElementById('usersTableBody');
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+const clearBtn = document.getElementById('clearBtn');
+const addUserBtn = document.getElementById('addUserBtn');
 
 // User modal
-const userModal       = document.getElementById('userModal');
-const modalTitle      = document.getElementById('modalTitle');
-const modalCloseBtn   = document.getElementById('modalCloseBtn');
-const modalCancelBtn  = document.getElementById('modalCancelBtn');
-const modalSaveBtn    = document.getElementById('modalSaveBtn');
+const userModal = document.getElementById('userModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
+const modalCancelBtn = document.getElementById('modalCancelBtn');
+const modalSaveBtn = document.getElementById('modalSaveBtn');
 
 // Delete modal
-const deleteModal     = document.getElementById('deleteModal');
-const deleteUserName  = document.getElementById('deleteUserName');
-const deleteCloseBtn  = document.getElementById('deleteModalCloseBtn');
+const deleteModal = document.getElementById('deleteModal');
+const deleteUserName = document.getElementById('deleteUserName');
+const deleteCloseBtn = document.getElementById('deleteModalCloseBtn');
 const deleteCancelBtn = document.getElementById('deleteCancelBtn');
-const deleteConfirmBtn= document.getElementById('deleteConfirmBtn');
+const deleteConfirmBtn = document.getElementById('deleteConfirmBtn');
 
 // ----------------------------------------------------------------
 // Utility: format role for display
 // ----------------------------------------------------------------
 function formatRole(role) {
-    const map = { super_admin: 'Super Admin', ceo: 'CEO', cenro: 'CENRO' };
+    const map = {
+        super_admin: 'Super Admin',
+        ceo: 'CEO',
+        cenro: 'CENRO'
+    };
     return map[role] || role;
 }
 
@@ -55,9 +59,9 @@ function formatRole(role) {
 // Utility: render active/inactive badge
 // ----------------------------------------------------------------
 function statusBadge(isActive) {
-    return isActive
-        ? '<span class="badge badge-success">Active</span>'
-        : '<span class="badge badge-danger">Inactive</span>';
+    return isActive ?
+        '<span class="badge badge-success">Active</span>' :
+        '<span class="badge badge-danger">Inactive</span>';
 }
 
 // ----------------------------------------------------------------
@@ -66,8 +70,8 @@ function statusBadge(isActive) {
 function roleBadge(role) {
     const classes = {
         super_admin: 'badge-primary',
-        ceo:         'badge-warning',
-        cenro:       'badge-gray',
+        ceo: 'badge-warning',
+        cenro: 'badge-gray',
     };
     return `<span class="badge ${classes[role] || 'badge-gray'}">${formatRole(role)}</span>`;
 }
@@ -76,7 +80,8 @@ function roleBadge(role) {
 // Load users from API and render table
 // ----------------------------------------------------------------
 async function loadUsers(search = '') {
-    tableBody.innerHTML = `<tr><td colspan="7" class="empty-state">Loading...</td></tr>`;
+    // Show skeleton while loading
+    Skeleton.injectTableRows('usersTableBody', 6, 7);
 
     const query = search ? `?search=${encodeURIComponent(search)}` : '';
 
@@ -159,25 +164,36 @@ function closeModal() {
 
 function clearModalForm() {
     currentEditId = null;
-    document.getElementById('userId').value       = '';
-    document.getElementById('userName').value     = '';
-    document.getElementById('userEmail').value    = '';
+    document.getElementById('userId').value = '';
+    document.getElementById('userName').value = '';
+    document.getElementById('userEmail').value = '';
     document.getElementById('userPassword').value = '';
-    document.getElementById('userRole').value     = '';
-    document.getElementById('userOffice').value   = '';
-    document.getElementById('userStatus').value   = '1';
+    document.getElementById('userRole').value = '';
+    document.getElementById('userOffice').value = '';
+    document.getElementById('userStatus').value = '1';
 
     // Reset password field label
     document.getElementById('passwordRequired').style.display = 'inline';
-    document.getElementById('passwordHint').style.display     = 'none';
+    document.getElementById('passwordHint').style.display = 'none';
 
     // Clear errors
     hideAlert('modalError');
-    clearFieldErrors([
-        { fieldId: 'userName',     errorId: 'userNameError'     },
-        { fieldId: 'userEmail',    errorId: 'userEmailError'    },
-        { fieldId: 'userPassword', errorId: 'userPasswordError' },
-        { fieldId: 'userRole',     errorId: 'userRoleError'     },
+    clearFieldErrors([{
+            fieldId: 'userName',
+            errorId: 'userNameError'
+        },
+        {
+            fieldId: 'userEmail',
+            errorId: 'userEmailError'
+        },
+        {
+            fieldId: 'userPassword',
+            errorId: 'userPasswordError'
+        },
+        {
+            fieldId: 'userRole',
+            errorId: 'userRoleError'
+        },
     ]);
 }
 
@@ -207,16 +223,16 @@ async function openEditModal(id) {
         }
 
         const u = result.data.data;
-        document.getElementById('userId').value    = u.id;
-        document.getElementById('userName').value  = u.name;
+        document.getElementById('userId').value = u.id;
+        document.getElementById('userName').value = u.name;
         document.getElementById('userEmail').value = u.email;
-        document.getElementById('userRole').value  = u.role;
-        document.getElementById('userOffice').value= u.office || '';
-        document.getElementById('userStatus').value= u.is_active ? '1' : '0';
+        document.getElementById('userRole').value = u.role;
+        document.getElementById('userOffice').value = u.office || '';
+        document.getElementById('userStatus').value = u.is_active ? '1' : '0';
 
         // Password is optional when editing
         document.getElementById('passwordRequired').style.display = 'none';
-        document.getElementById('passwordHint').style.display     = 'inline';
+        document.getElementById('passwordHint').style.display = 'inline';
 
         openModal();
 
@@ -235,18 +251,29 @@ modalSaveBtn.addEventListener('click', async () => {
     hideAlert('modalError');
 
     // Clear previous field errors
-    clearFieldErrors([
-        { fieldId: 'userName',     errorId: 'userNameError'     },
-        { fieldId: 'userEmail',    errorId: 'userEmailError'    },
-        { fieldId: 'userPassword', errorId: 'userPasswordError' },
-        { fieldId: 'userRole',     errorId: 'userRoleError'     },
+    clearFieldErrors([{
+            fieldId: 'userName',
+            errorId: 'userNameError'
+        },
+        {
+            fieldId: 'userEmail',
+            errorId: 'userEmailError'
+        },
+        {
+            fieldId: 'userPassword',
+            errorId: 'userPasswordError'
+        },
+        {
+            fieldId: 'userRole',
+            errorId: 'userRoleError'
+        },
     ]);
 
-    const name     = document.getElementById('userName').value.trim();
-    const email    = document.getElementById('userEmail').value.trim();
+    const name = document.getElementById('userName').value.trim();
+    const email = document.getElementById('userEmail').value.trim();
     const password = document.getElementById('userPassword').value;
-    const role     = document.getElementById('userRole').value;
-    const office   = document.getElementById('userOffice').value.trim();
+    const role = document.getElementById('userRole').value;
+    const office = document.getElementById('userOffice').value.trim();
     const isActive = document.getElementById('userStatus').value === '1';
 
     // Client-side validation
@@ -272,49 +299,34 @@ modalSaveBtn.addEventListener('click', async () => {
     if (hasError) return;
 
     // Build payload
-    const payload = { name, email, role, office, is_active: isActive };
+    const payload = {
+        name,
+        email,
+        role,
+        office,
+        is_active: isActive
+    };
     if (password) payload.password = password;
 
     modalSaveBtn.disabled = true;
-    modalSaveBtn.textContent = 'Saving...';
 
-    try {
-        const isEditing = !!currentEditId;
-        const result = await apiFetch(
-            isEditing ? `/users/${currentEditId}` : '/users',
-            {
-                method: isEditing ? 'PUT' : 'POST',
-                body:   JSON.stringify(payload),
-            }
-        );
-
-        if (result.data.success) {
-            closeModal();
-            showAlert('successAlert', result.data.message, 'success');
-            loadUsers(searchInput.value.trim());
-
-            // Auto-hide success message after 3 seconds
-            setTimeout(() => hideAlert('successAlert'), 3000);
-
-        } else {
-            // Show server validation errors if any
-            if (result.data.errors) {
-                const errors = result.data.errors;
-                if (errors.name)     setFieldError('userName',     'userNameError',     errors.name[0]);
-                if (errors.email)    setFieldError('userEmail',    'userEmailError',    errors.email[0]);
-                if (errors.password) setFieldError('userPassword', 'userPasswordError', errors.password[0]);
-                if (errors.role)     setFieldError('userRole',     'userRoleError',     errors.role[0]);
-            } else {
-                showAlert('modalError', result.data.message || 'Failed to save user.', 'error');
-            }
+    const isEditing = !!currentEditId;
+    await Api.action(
+        isEditing ? 'PUT' : 'POST',
+        isEditing ? `/api/users/${currentEditId}` : '/api/users',
+        payload, {
+            loading: isEditing ? 'Saving changes...' : 'Creating user...',
+            success: isEditing ? 'User updated successfully.' : 'User created successfully.',
+            successTitle: isEditing ? 'Changes Saved' : 'User Created',
+            errorTitle: 'Save Failed',
+            onSuccess: () => {
+                closeModal();
+                loadUsers(searchInput.value.trim());
+            },
         }
+    );
 
-    } catch (err) {
-        showAlert('modalError', 'Network error. Please try again.', 'error');
-    } finally {
-        modalSaveBtn.disabled = false;
-        modalSaveBtn.textContent = 'Save User';
-    }
+    modalSaveBtn.disabled = false;
 });
 
 // ----------------------------------------------------------------
@@ -340,41 +352,34 @@ deleteConfirmBtn.addEventListener('click', async () => {
     if (!deleteTargetId) return;
 
     deleteConfirmBtn.disabled = true;
-    deleteConfirmBtn.textContent = 'Deleting...';
+    closeDeleteModal();
 
-    try {
-        const result = await apiFetch(`/users/${deleteTargetId}`, { method: 'DELETE' });
+    await Api.action('DELETE', `/api/users/${deleteTargetId}`, {}, {
+        loading: 'Deleting user...',
+        success: 'User has been deleted.',
+        successTitle: 'User Deleted',
+        errorTitle: 'Delete Failed',
+        onSuccess: () => loadUsers(searchInput.value.trim()),
+    });
 
-        if (result.data.success) {
-            closeDeleteModal();
-            showAlert('successAlert', result.data.message, 'success');
-            loadUsers(searchInput.value.trim());
-            setTimeout(() => hideAlert('successAlert'), 3000);
-        } else {
-            closeDeleteModal();
-            showAlert('errorAlert', result.data.message || 'Failed to delete user.', 'error');
-        }
-
-    } catch (err) {
-        closeDeleteModal();
-        showAlert('errorAlert', 'Network error.', 'error');
-    } finally {
-        deleteConfirmBtn.disabled = false;
-        deleteConfirmBtn.textContent = 'Delete';
-    }
+    deleteConfirmBtn.disabled = false;
 });
 
 // ----------------------------------------------------------------
 // Close modal events
 // ----------------------------------------------------------------
-modalCloseBtn.addEventListener('click',  closeModal);
+modalCloseBtn.addEventListener('click', closeModal);
 modalCancelBtn.addEventListener('click', closeModal);
-deleteCloseBtn.addEventListener('click',  closeDeleteModal);
+deleteCloseBtn.addEventListener('click', closeDeleteModal);
 deleteCancelBtn.addEventListener('click', closeDeleteModal);
 
 // Close modal if user clicks the dark overlay background
-userModal.addEventListener('click', (e) => { if (e.target === userModal)  closeModal(); });
-deleteModal.addEventListener('click', (e) => { if (e.target === deleteModal) closeDeleteModal(); });
+userModal.addEventListener('click', (e) => {
+    if (e.target === userModal) closeModal();
+});
+deleteModal.addEventListener('click', (e) => {
+    if (e.target === deleteModal) closeDeleteModal();
+});
 
 // ----------------------------------------------------------------
 // Initial load

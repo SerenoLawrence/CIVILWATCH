@@ -20,7 +20,6 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
   final _formKey = GlobalKey<FormState>();
   final _descController = TextEditingController();
   String? _selectedBarangay;
-  String _severity = 'Moderate';
   bool _useCurrentLocation = false;
 
   @override
@@ -35,7 +34,7 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
       ...widget.reportData,
       'barangay': _selectedBarangay ?? 'Aplaya',
       'description': _descController.text.trim(),
-      'severity': _severity,
+      'severity': 'Moderate', // set by admin when assigning office
       'useCurrentLocation': _useCurrentLocation,
     });
   }
@@ -144,47 +143,6 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 24),
-
-                    // ── Severity ──────────────────────────────────────────
-                    _SectionLabel(
-                      icon: Icons.shield_outlined,
-                      label: 'Severity',
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'How serious is this issue?',
-                      style: GoogleFonts.inter(
-                          fontSize: 12, color: AppColors.textSecondary),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        _SeverityChip(
-                          label: 'Minor',
-                          color: AppColors.statusResolved,
-                          isSelected: _severity == 'Minor',
-                          onTap: () =>
-                              setState(() => _severity = 'Minor'),
-                        ),
-                        const SizedBox(width: 10),
-                        _SeverityChip(
-                          label: 'Moderate',
-                          color: AppColors.statusPending,
-                          isSelected: _severity == 'Moderate',
-                          onTap: () =>
-                              setState(() => _severity = 'Moderate'),
-                        ),
-                        const SizedBox(width: 10),
-                        _SeverityChip(
-                          label: 'Severe',
-                          color: AppColors.statusInProgress,
-                          isSelected: _severity == 'Severe',
-                          onTap: () =>
-                              setState(() => _severity = 'Severe'),
-                        ),
-                      ],
-                    ),
                     const SizedBox(height: 8),
                   ],
                 ),
@@ -326,61 +284,6 @@ class _BarangayDropdown extends StatelessWidget {
       icon: const Icon(Icons.keyboard_arrow_down_rounded,
           color: AppColors.textSecondary),
       borderRadius: BorderRadius.circular(12),
-    );
-  }
-}
-
-class _SeverityChip extends StatelessWidget {
-  final String label;
-  final Color color;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _SeverityChip({
-    required this.label,
-    required this.color,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.12) : AppColors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isSelected ? color : AppColors.divider,
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration:
-                  BoxDecoration(color: color, shape: BoxShape.circle),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight:
-                    isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? color : AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

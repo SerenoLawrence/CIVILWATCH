@@ -130,15 +130,64 @@ class ApiClient {
     }
 
     // Extract error message from Laravel's standard error shapes
-    final message = json['message'] as String? ??
+    final rawMessage = json['message'] as String? ??
         _extractValidationError(json) ??
         'An error occurred (${response.statusCode})';
+
+    // Sanitize — never show raw SQL, stack traces, or connection strings
+    final message = _sanitizeError(rawMessage, response.statusCode);
 
     throw ApiException(
       message: message,
       statusCode: response.statusCode,
       errors: json['errors'] as Map<String, dynamic>?,
     );
+  }
+
+  /// Replace any technical server/SQL error with a plain-language message.
+  String _sanitizeError(String raw, int statusCode) {
+    final lower = raw.toLowerCase();
+
+    // Database connection failures
+    if (lower.contains('sqlstate') ||
+        lower.contains('connection') ||
+        lower.contains('refused') ||
+        lower.contains('pdo') ||
+        lower.contains('mysql') ||
+        lower.contains('could not be made') ||
+        lower.contains('target machine')) {
+      return 'The server is temporarily unavailable. Please try again in a moment.';
+    }
+
+    // Duplicate key / unique constraint
+    if (lower.contains('integrity constraint') ||
+        lower.contains('duplicate entry') ||
+        lower.contains('unique constraint')) {
+      if (lower.contains('email')) {
+        return 'That email address is already registered. Please use a different one.';
+      }
+      if (lower.contains('phone')) {
+        return 'That mobile number is already registered. Please sign in instead.';
+      }
+      return 'This information is already taken. Please use different details.';
+    }
+
+    // Generic server errors
+    if (statusCode >= 500) {
+      return 'Something went wrong on our end. Please try again later.';
+    }
+
+    // If the message looks like a stack trace or SQL, replace it
+    if (raw.length > 200 ||
+        lower.contains('exception') ||
+        lower.contains('stack trace') ||
+        lower.contains('illuminate\\') ||
+        lower.contains('select ') ||
+        lower.contains('insert into')) {
+      return 'An unexpected error occurred. Please try again.';
+    }
+
+    return raw;
   }
 
   String? _extractValidationError(Map<String, dynamic> json) {
