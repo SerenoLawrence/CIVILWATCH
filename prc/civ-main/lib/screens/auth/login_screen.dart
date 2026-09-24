@@ -8,6 +8,7 @@ import '../../core/utils/validators.dart';
 import '../../screens/auth/forgot_password_flow.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/buttons/primary_button.dart';
+import '../../widgets/common/app_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   final bool fromVisitor;
@@ -21,7 +22,6 @@ class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
-  bool _isLoading = false;
   bool _obscurePin = true;
 
   // 6-digit PIN state
@@ -59,11 +59,14 @@ class _LoginScreenState extends State<LoginScreen>
   void _login() async {
     if (!_formKey.currentState!.validate()) return;
     if (_pin.length != 6) {
-      _showSnack('Please enter your 6-digit PIN', isError: true);
+      AppDialog.error(context,
+          title: 'PIN Required',
+          message: 'Please enter your 6-digit PIN to continue.');
       return;
     }
 
-    setState(() => _isLoading = true);
+    // Show loading modal — non-dismissible while request is in-flight
+    AppDialog.loading(context, message: 'Logging you in…');
 
     final phone = '+63${_phoneController.text.replaceAll(' ', '')}';
     final result = await AuthService.instance.loginWithPin(
@@ -72,35 +75,21 @@ class _LoginScreenState extends State<LoginScreen>
     );
 
     if (!mounted) return;
-    setState(() => _isLoading = false);
+    AppDialog.hide(context);
 
     if (result.success && result.user != null) {
-      // Real login succeeded — update AppState then go to Home
       AppState().exitGuest();
       await AppState().onLoginSuccess(result.user!);
       if (!mounted) return;
       Navigator.pushNamedAndRemoveUntil(
           context, AppRoutes.home, (route) => false);
     } else {
-      // Show the error from the API (or the TODO message while PIN login
-      // endpoint is being built — in that case hint user to use OTP)
       final msg = result.error ?? 'Login failed. Please try again.';
-      _showSnack(msg, isError: true);
+      AppDialog.error(context,
+          title: 'Login Failed',
+          message: msg,
+          actionLabel: 'Try Again');
     }
-  }
-
-  void _showSnack(String msg, {required bool isError}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(msg),
-        backgroundColor:
-            isError ? const Color(0xFFDC2626) : AppColors.primary,
-        behavior: SnackBarBehavior.floating,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
   }
 
   @override
@@ -419,7 +408,7 @@ class _LoginScreenState extends State<LoginScreen>
                               PrimaryButton(
                                 label: 'Login',
                                 icon: Icons.login_rounded,
-                                isLoading: _isLoading,
+                                isLoading: false,
                                 onPressed: _login,
                                 backgroundColor: AppColors.primary,
                                 borderRadius: 14,

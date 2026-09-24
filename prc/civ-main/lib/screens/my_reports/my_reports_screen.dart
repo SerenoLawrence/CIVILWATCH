@@ -7,6 +7,7 @@ import '../../core/utils/helpers.dart';
 import '../../models/report.dart';
 import '../../widgets/cards/report_card.dart';
 import '../../widgets/common/empty_state.dart';
+import '../../widgets/common/skeleton.dart';
 import '../../widgets/inputs/search_field.dart';
 
 class MyReportsScreen extends StatefulWidget {
@@ -229,7 +230,9 @@ class _MyReportsScreenState extends State<MyReportsScreen> {
 
                 // ── Report List ────────────────────────────────────────
                 Expanded(
-                  child: filtered.isEmpty
+                  child: AppState().isLoading
+                      ? const MyReportsSkeleton()
+                      : filtered.isEmpty
                       ? EmptyState(
                           icon: Icons.article_outlined,
                           title: 'No reports found',

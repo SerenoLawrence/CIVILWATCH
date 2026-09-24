@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import '../core/constants/api_constants.dart';
@@ -89,14 +92,23 @@ class ReportService {
 
       // Attach real photo file if one was picked
       final List<http.MultipartFile> files = [];
-      final photoFile = data['photoFile'];
-      if (photoFile != null && photoFile is XFile) {
-        final mf = await http.MultipartFile.fromPath(
+      final photoFile  = data['photoFile']  as XFile?;
+      final photoBytes = data['photoBytes'] as Uint8List?;
+
+      if (photoBytes != null && photoFile != null) {
+        // Use bytes — works on both Web and Android
+        files.add(http.MultipartFile.fromBytes(
+          'photo',
+          photoBytes,
+          filename: photoFile.name,
+        ));
+      } else if (!kIsWeb && photoFile != null) {
+        // Mobile fallback using path (only when bytes unavailable)
+        files.add(await http.MultipartFile.fromPath(
           'photo',
           photoFile.path,
           filename: photoFile.name,
-        );
-        files.add(mf);
+        ));
       }
 
       final res = await _api.postMultipart(

@@ -1,272 +1,459 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <script>
-  (function(){
-    var role = localStorage.getItem('cw_role');
-    if (!role) { window.location.replace('index.html'); }
-    else if (role !== 'super_admin') {
-      window.location.replace(role === 'ceo' ? 'offices/ceo/dashboard.html' : 'offices/cenro/dashboard.html');
-    }
-  })();
+    (function() {
+        var role = localStorage.getItem('cw_role');
+        if (!role) {
+            window.location.replace('index.html');
+        } else if (role !== 'super_admin') {
+            window.location.replace(role === 'ceo' ? 'offices/ceo/dashboard.html' : 'offices/cenro/dashboard.html');
+        }
+    })();
 </script>
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resolved Reports — CIVILWATCH Admin</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-  <link rel="stylesheet" href="/css/variables.css" />
-  <link rel="stylesheet" href="/css/global.css" />
-  <link rel="stylesheet" href="/css/layout.css" />
-  <link rel="stylesheet" href="/css/sidebar.css" />
-  <link rel="stylesheet" href="/css/navbar.css" />
-  <link rel="stylesheet" href="/css/cards.css" />
-  <link rel="stylesheet" href="/css/buttons.css" />
-  <link rel="stylesheet" href="/css/tables.css" />
-  <link rel="stylesheet" href="/css/badges.css" />
-  <link rel="stylesheet" href="/css/responsive.css" />
-  <style>
-    .resolved-stat-strip {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 22px;
-    }
-    .resolved-stat {
-      background: var(--white);
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      padding: 18px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .resolved-stat-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .resolved-stat-icon .material-symbols-outlined { font-size: 22px; }
-    .rs-total    .resolved-stat-icon { background: var(--status-resolved-bg); color: var(--status-resolved); }
-    .rs-month    .resolved-stat-icon { background: var(--primary-light);       color: var(--primary); }
-    .rs-week     .resolved-stat-icon { background: #F3E8FF;                    color: #7C3AED; }
-    .rs-alltotal .resolved-stat-icon { background: var(--gray-100);            color: var(--gray-600); }
-    .resolved-stat-val { font-size: 26px; font-weight: 700; color: var(--gray-900); }
-    .resolved-stat-label { font-size: 13px; font-weight: 600; color: var(--gray-700); }
-    .resolved-stat-sub   { font-size: 11px; color: var(--gray-400); }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resolved Reports — CIVILWATCH Admin</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/css/variables.css" />
+    <link rel="stylesheet" href="/css/global.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/sidebar.css" />
+    <link rel="stylesheet" href="/css/navbar.css" />
+    <link rel="stylesheet" href="/css/cards.css" />
+    <link rel="stylesheet" href="/css/buttons.css" />
+    <link rel="stylesheet" href="/css/tables.css" />
+    <link rel="stylesheet" href="/css/badges.css" />
+    <link rel="stylesheet" href="/css/responsive.css" />
+    <style>
+        .resolved-stat-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .resolved-stat {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .resolved-stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .resolved-stat-icon .material-symbols-outlined {
+            font-size: 22px;
+        }
+
+        .rs-total .resolved-stat-icon {
+            background: var(--status-resolved-bg);
+            color: var(--status-resolved);
+        }
+
+        .rs-month .resolved-stat-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .rs-week .resolved-stat-icon {
+            background: #F3E8FF;
+            color: #7C3AED;
+        }
+
+        .rs-alltotal .resolved-stat-icon {
+            background: var(--gray-100);
+            color: var(--gray-600);
+        }
+
+        .resolved-stat-val {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .resolved-stat-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .resolved-stat-sub {
+            font-size: 11px;
+            color: var(--gray-400);
+        }
+    </style>
 </head>
+
 <body data-page="resolved-reports">
-<div class="app-wrapper">
-  <aside class="sidebar" id="sidebar"></aside>
-  <div class="main-area" id="mainArea">
-    <nav class="navbar" id="navbar"></nav>
-    <main class="page-content">
+    <div class="app-wrapper">
+        <aside class="sidebar" id="sidebar"></aside>
+        <div class="main-area" id="mainArea">
+            <nav class="navbar" id="navbar"></nav>
+            <main class="page-content">
 
-      <!-- Header -->
-      <div class="page-header">
-        <h1 class="page-title">Resolved Reports</h1>
-        <p class="page-subtitle">View all completed and resolved reports.</p>
-      </div>
+                <!-- Header -->
+                <div class="page-header">
+                    <h1 class="page-title">Resolved Reports</h1>
+                    <p class="page-subtitle">View all completed and resolved reports.</p>
+                </div>
 
-      <!-- Stat Strip -->
-      <div class="resolved-stat-strip">
-        <div class="resolved-stat rs-total">
-          <div class="resolved-stat-icon"><span class="material-symbols-outlined">check_circle</span></div>
-          <div>
-            <div class="resolved-stat-val">156</div>
-            <div class="resolved-stat-label">Total Resolved</div>
-            <div class="resolved-stat-sub">All time</div>
-          </div>
+                <!-- Stat Strip -->
+                <div class="resolved-stat-strip">
+                    <div class="resolved-stat rs-total">
+                        <div class="resolved-stat-icon"><span class="material-symbols-outlined">check_circle</span></div>
+                        <div>
+                            <div class="resolved-stat-val" id="statTotalResolved">—</div>
+                            <div class="resolved-stat-label">Total Resolved</div>
+                            <div class="resolved-stat-sub">All time</div>
+                        </div>
+                    </div>
+                    <div class="resolved-stat rs-month">
+                        <div class="resolved-stat-icon"><span class="material-symbols-outlined">calendar_month</span></div>
+                        <div>
+                            <div class="resolved-stat-val" id="statThisMonth">—</div>
+                            <div class="resolved-stat-label">Resolved This Month</div>
+                            <div class="resolved-stat-sub" id="statMonthLabel">This month</div>
+                        </div>
+                    </div>
+                    <div class="resolved-stat rs-week">
+                        <div class="resolved-stat-icon"><span class="material-symbols-outlined">date_range</span></div>
+                        <div>
+                            <div class="resolved-stat-val" id="statThisWeek">—</div>
+                            <div class="resolved-stat-label">Resolved This Week</div>
+                            <div class="resolved-stat-sub" id="statWeekLabel">This week</div>
+                        </div>
+                    </div>
+                    <div class="resolved-stat rs-alltotal">
+                        <div class="resolved-stat-icon"><span class="material-symbols-outlined">description</span></div>
+                        <div>
+                            <div class="resolved-stat-val" id="statAllTotal">—</div>
+                            <div class="resolved-stat-label">Total Reports</div>
+                            <div class="resolved-stat-sub">All time</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toolbar -->
+                <div class="table-toolbar">
+                    <div class="search-input-wrap">
+                        <span class="material-symbols-outlined">search</span>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search reports..." />
+                    </div>
+                    <select class="filter-select" id="officeFilter">
+                        <option value="">All Offices</option>
+                        <option value="City Engineering Office">City Engineering Office</option>
+                        <option value="CENRO">CENRO</option>
+                    </select>
+                    <select class="filter-select" id="catFilter">
+                        <option value="">All Categories</option>
+                        <option value="Infrastructure">Infrastructure</option>
+                        <option value="Environmental">Environmental</option>
+                    </select>
+                    <select class="filter-select" id="brgyFilter">
+                        <option value="">All Barangays</option>
+                        <option>Aplaya</option>
+                        <option>Carmen</option>
+                        <option>Zone II</option>
+                        <option>Zone III</option>
+                        <option>Magsaysay</option>
+                        <option>Badiang</option>
+                    </select>
+                    <select class="filter-select" id="dateFilter">
+                        <option>All Resolution Dates</option>
+                        <option>This Week</option>
+                        <option>This Month</option>
+                        <option>Last 3 Months</option>
+                    </select>
+                    <div class="date-filter">
+                        <span class="material-symbols-outlined">calendar_today</span>
+                        May 1, 2025 – May 21, 2026
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="card">
+                    <div class="table-container" style="border:none;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>REFERENCE NO.</th>
+                                    <th>PHOTO</th>
+                                    <th>ISSUE</th>
+                                    <th>CATEGORY</th>
+                                    <th>BARANGAY</th>
+                                    <th>RESOLVED DATE</th>
+                                    <th>ASSIGNED OFFICE</th>
+                                    <th>STATUS</th>
+                                    <th>ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resolvedTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <span class="table-showing" id="showingLabel">Showing 1 to 6 of 156 results</span>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div class="pagination" id="pagination"></div>
+                            <select class="per-page-select">
+                                <option>10 / page</option>
+                                <option>20 / page</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
         </div>
-        <div class="resolved-stat rs-month">
-          <div class="resolved-stat-icon"><span class="material-symbols-outlined">calendar_month</span></div>
-          <div>
-            <div class="resolved-stat-val">18</div>
-            <div class="resolved-stat-label">Resolved This Month</div>
-            <div class="resolved-stat-sub">May 1 – May 21, 2026</div>
-          </div>
-        </div>
-        <div class="resolved-stat rs-week">
-          <div class="resolved-stat-icon"><span class="material-symbols-outlined">date_range</span></div>
-          <div>
-            <div class="resolved-stat-val">6</div>
-            <div class="resolved-stat-label">Resolved This Week</div>
-            <div class="resolved-stat-sub">May 15 – May 21, 2026</div>
-          </div>
-        </div>
-        <div class="resolved-stat rs-alltotal">
-          <div class="resolved-stat-icon"><span class="material-symbols-outlined">description</span></div>
-          <div>
-            <div class="resolved-stat-val">342</div>
-            <div class="resolved-stat-label">Total Reports</div>
-            <div class="resolved-stat-sub">All time</div>
-          </div>
-        </div>
-      </div>
+    </div>
 
-      <!-- Toolbar -->
-      <div class="table-toolbar">
-        <div class="search-input-wrap">
-          <span class="material-symbols-outlined">search</span>
-          <input type="text" class="search-input" id="searchInput" placeholder="Search reports..." />
-        </div>
-        <select class="filter-select" id="officeFilter">
-          <option value="">All Offices</option>
-          <option value="City Engineering Office">City Engineering Office</option>
-          <option value="CENRO">CENRO</option>
-        </select>
-        <select class="filter-select" id="catFilter">
-          <option value="">All Categories</option>
-          <option value="Infrastructure">Infrastructure</option>
-          <option value="Environmental">Environmental</option>
-        </select>
-        <select class="filter-select" id="brgyFilter">
-          <option value="">All Barangays</option>
-          <option>Aplaya</option><option>Carmen</option>
-          <option>Zone II</option><option>Zone III</option>
-          <option>Magsaysay</option><option>Badiang</option>
-        </select>
-        <select class="filter-select" id="dateFilter">
-          <option>All Resolution Dates</option>
-          <option>This Week</option>
-          <option>This Month</option>
-          <option>Last 3 Months</option>
-        </select>
-        <div class="date-filter">
-          <span class="material-symbols-outlined">calendar_today</span>
-          May 1, 2025 – May 21, 2026
-        </div>
-      </div>
+    <script src="/js/utils.js"></script>
+    <script src="/js/app.js"></script>
 
-      <!-- Table -->
-      <div class="card">
-        <div class="table-container" style="border:none;">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>REFERENCE NO.</th>
-                <th>PHOTO</th>
-                <th>ISSUE</th>
-                <th>CATEGORY</th>
-                <th>BARANGAY</th>
-                <th>RESOLVED DATE</th>
-                <th>ASSIGNED OFFICE</th>
-                <th>STATUS</th>
-                <th>ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody id="resolvedTableBody"></tbody>
-          </table>
-        </div>
-        <div class="table-footer">
-          <span class="table-showing" id="showingLabel">Showing 1 to 6 of 156 results</span>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div class="pagination" id="pagination"></div>
-            <select class="per-page-select">
-              <option>10 / page</option>
-              <option>20 / page</option>
-            </select>
-          </div>
-        </div>
-      </div>
+    <script>
+        var allResolved = [];
+        var filtered    = [];
+        var currentPage = 1;
+        var perPage     = 10;
 
-    </main>
-  </div>
-</div>
+        // ── Helpers ───────────────────────────────────────────
+        function fmtDate(str) {
+            if (!str) return '—';
+            var d = new Date(str);
+            if (isNaN(d)) return str;
+            return d.toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' });
+        }
+        function fmtTime(str) {
+            if (!str) return '';
+            var d = new Date(str);
+            if (isNaN(d)) return '';
+            return d.toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' });
+        }
+        function normCategory(c) {
+            if (!c) return '';
+            var lc = c.toLowerCase();
+            if (lc.includes('infra'))                           return 'Infrastructure';
+            if (lc.includes('environ') || lc === 'environment') return 'Environmental';
+            return c;
+        }
+        function getWeekNumber(d) {
+            var jan1 = new Date(d.getFullYear(), 0, 1);
+            return Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+        }
 
-<script src="/js/utils.js"></script>
-<script src="/js/app.js"></script>
-<script>
-const resolvedData = [
-  { id:'CW-2026-215', issue:'Broken Streetlight',  cat:'Infrastructure', barangay:'Zone III',  resolvedDate:'May 21, 2026', resolvedTime:'08:20 AM', office:'City Engineering Office', desc:'Streetlight is not working at night.' },
-  { id:'CW-2026-217', issue:'Illegal Dumping',     cat:'Environmental',  barangay:'Carmen',    resolvedDate:'May 20, 2026', resolvedTime:'03:40 PM', office:'CENRO',                   desc:'Garbage is illegally dumped near the river side.' },
-  { id:'CW-2026-213', issue:'Overgrown Vegetation',cat:'Environmental',  barangay:'Badiang',   resolvedDate:'May 20, 2026', resolvedTime:'02:10 PM', office:'CENRO',                   desc:'Vegetation is overgrown and blocking the pathway.' },
-  { id:'CW-2026-216', issue:'Damaged Sidewalk',    cat:'Infrastructure', barangay:'Zone II',   resolvedDate:'May 19, 2026', resolvedTime:'05:30 PM', office:'City Engineering Office', desc:'Sidewalk is cracked and unsafe for pedestrians.' },
-  { id:'CW-2026-214', issue:'Blocked Drainage',    cat:'Infrastructure', barangay:'Magsaysay', resolvedDate:'May 18, 2026', resolvedTime:'11:20 AM', office:'City Engineering Office', desc:'Drainage is clogged causing water to overflow.' },
-  { id:'CW-2026-209', issue:'Damaged Road',        cat:'Infrastructure', barangay:'Aplaya',    resolvedDate:'May 17, 2026', resolvedTime:'09:00 AM', office:'City Engineering Office', desc:'Deep potholes along the road causing difficulty.' },
-];
+        // ── Stat cards ────────────────────────────────────────
+        function updateStats(totalAll, resolved) {
+            var now = new Date();
+            var ym  = now.getFullYear() * 100 + (now.getMonth() + 1);
+            var yw  = now.getFullYear() * 1000 + getWeekNumber(now);
 
-let filtered = [...resolvedData];
+            var thisMonth = resolved.filter(function(r) {
+                var d = new Date(r.resolvedAt || r.resolved_at || r.updated_at);
+                return d.getFullYear() * 100 + (d.getMonth() + 1) === ym;
+            }).length;
 
-function render() {
-  const tbody = document.getElementById('resolvedTableBody');
-  tbody.innerHTML = filtered.map(r => `
-    <tr>
-      <td><span class="ref-id">${r.id}</span></td>
-      <td>
-        <img class="table-photo" src="${getPhotoUrl(r.issue)}" alt="${r.issue}"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-        <div class="table-photo-placeholder" style="display:none">
-          <span class="material-symbols-outlined">image</span>
-        </div>
-      </td>
-      <td>
-        <div class="table-issue">
-          <span class="table-issue-name">${r.issue}</span>
-          <span class="table-issue-desc">${r.desc}</span>
-        </div>
-      </td>
-      <td>${Utils.categoryBadge(r.cat)}</td>
-      <td>${r.barangay}</td>
-      <td>
-        <div style="font-size:13px;color:var(--gray-700);">${r.resolvedDate}</div>
-        <div style="font-size:11px;color:var(--gray-400);">${r.resolvedTime}</div>
-      </td>
-      <td>
-        <div class="office-cell">
-          <span class="material-symbols-outlined">${r.cat === 'Infrastructure' ? 'business' : 'eco'}</span>
-          ${r.office}
-        </div>
-      </td>
-      <td>${Utils.statusBadge('Resolved')}</td>
-      <td>
-        <a href="report-details.html?id=${r.id}" class="btn-view">
-          <span class="material-symbols-outlined">visibility</span> View Details
-        </a>
-      </td>
-    </tr>
-  `).join('');
-  document.getElementById('showingLabel').textContent = `Showing 1 to ${filtered.length} of 156 results`;
-  renderPagination();
-}
+            var thisWeek = resolved.filter(function(r) {
+                var d = new Date(r.resolvedAt || r.resolved_at || r.updated_at);
+                return d.getFullYear() * 1000 + getWeekNumber(d) === yw;
+            }).length;
 
-function renderPagination() {
-  document.getElementById('pagination').innerHTML = `
-    <button class="page-btn"><span class="material-symbols-outlined">chevron_left</span></button>
-    <button class="page-btn active">1</button>
-    <button class="page-btn">2</button>
-    <button class="page-btn">3</button>
-    <button class="page-btn">…</button>
-    <button class="page-btn">16</button>
-    <button class="page-btn"><span class="material-symbols-outlined">chevron_right</span></button>
-  `;
-}
+            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            document.getElementById('statTotalResolved').textContent = resolved.length;
+            document.getElementById('statThisMonth').textContent     = thisMonth;
+            document.getElementById('statThisWeek').textContent      = thisWeek;
+            document.getElementById('statAllTotal').textContent      = totalAll;
+            document.getElementById('statMonthLabel').textContent    =
+                months[now.getMonth()] + ' 1 \u2013 ' + now.getDate() + ', ' + now.getFullYear();
+            document.getElementById('statWeekLabel').textContent     =
+                'Week ' + getWeekNumber(now) + ', ' + now.getFullYear();
+        }
 
-const doFilter = Utils.debounce(() => {
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  const off = document.getElementById('officeFilter').value;
-  const cat = document.getElementById('catFilter').value;
-  const brgy = document.getElementById('brgyFilter').value;
-  filtered = resolvedData.filter(r =>
-    (!q   || r.issue.toLowerCase().includes(q) || r.barangay.toLowerCase().includes(q)) &&
-    (!off || r.office.includes(off)) &&
-    (!cat || r.cat === cat) &&
-    (!brgy || r.barangay === brgy)
-  );
-  render();
-}, 250);
+        // ── Render table ──────────────────────────────────────
+        function render() {
+            var tbody = document.getElementById('resolvedTableBody');
+            var start = (currentPage - 1) * perPage;
+            var page  = filtered.slice(start, start + perPage);
 
-['searchInput','officeFilter','catFilter','brgyFilter'].forEach(id => {
-  document.getElementById(id)?.addEventListener('input', doFilter);
-  document.getElementById(id)?.addEventListener('change', doFilter);
-});
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--gray-400);">'
+                    + '<span class="material-symbols-outlined" style="display:block;font-size:36px;margin-bottom:8px">task_alt</span>'
+                    + 'No resolved reports found.</td></tr>';
+                document.getElementById('showingLabel').textContent = 'No results';
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
 
-render();
-</script>
+            tbody.innerHTML = page.map(function(r) {
+                var ref      = r.referenceNumber || r.reference_number || String(r.id);
+                var concern  = r.concern || r.issue || '—';
+                var cat      = normCategory(r.category);
+                var barangay = r.barangay || '—';
+                var photo    = r.imageUrl || r.photo_url || null;
+                var resDate  = r.resolvedAt || r.resolved_at;
+                var office   = r.assignedOffice
+                    ? (typeof r.assignedOffice === 'object' ? r.assignedOffice.name : r.assignedOffice)
+                    : '—';
+                var isInfra  = cat === 'Infrastructure';
+                var desc     = r.description || '';
+
+                var photoCell = photo
+                    ? '<img class="table-photo" src="' + photo + '" alt="' + concern
+                      + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" />'
+                      + '<div class="table-photo-placeholder" style="display:none">'
+                      + '<span class="material-symbols-outlined">image</span></div>'
+                    : '<div class="table-photo-placeholder"><span class="material-symbols-outlined">image</span></div>';
+
+                return '<tr>'
+                    + '<td><span class="ref-id">' + ref + '</span></td>'
+                    + '<td>' + photoCell + '</td>'
+                    + '<td><div class="table-issue">'
+                    +   '<span class="table-issue-name">' + concern + '</span>'
+                    +   (desc ? '<span class="table-issue-desc">' + desc.substring(0,60) + (desc.length>60?'&hellip;':'') + '</span>' : '')
+                    + '</div></td>'
+                    + '<td>' + Utils.categoryBadge(cat) + '</td>'
+                    + '<td>' + barangay + '</td>'
+                    + '<td>'
+                    +   '<div style="font-size:13px;color:var(--gray-700)">' + fmtDate(resDate) + '</div>'
+                    +   '<div style="font-size:11px;color:var(--gray-400)">' + fmtTime(resDate) + '</div>'
+                    + '</td>'
+                    + '<td><div class="office-cell">'
+                    +   '<span class="material-symbols-outlined">' + (isInfra ? 'business' : 'eco') + '</span>'
+                    +   office
+                    + '</div></td>'
+                    + '<td>' + Utils.statusBadge('Resolved') + '</td>'
+                    + '<td><a href="report-details.html?id=' + r.id + '" class="btn-view">'
+                    +   '<span class="material-symbols-outlined">visibility</span> View Details'
+                    + '</a></td>'
+                    + '</tr>';
+            }).join('');
+
+            var showing = 'Showing ' + (start+1) + '\u2013' + Math.min(start+perPage, filtered.length)
+                        + ' of ' + filtered.length + ' results';
+            document.getElementById('showingLabel').textContent = showing;
+            renderPagination();
+        }
+
+        function renderPagination() {
+            var total = Math.ceil(filtered.length / perPage);
+            var pg    = document.getElementById('pagination');
+            if (total <= 1) { pg.innerHTML = ''; return; }
+            var html = '<button class="page-btn" onclick="goPage(' + (currentPage-1) + ')" '
+                     + (currentPage===1 ? 'disabled' : '') + '>'
+                     + '<span class="material-symbols-outlined">chevron_left</span></button>';
+            for (var i = 1; i <= total; i++) {
+                html += '<button class="page-btn ' + (i===currentPage?'active':'')
+                      + '" onclick="goPage(' + i + ')">' + i + '</button>';
+            }
+            html += '<button class="page-btn" onclick="goPage(' + (currentPage+1) + ')" '
+                  + (currentPage===total ? 'disabled' : '') + '>'
+                  + '<span class="material-symbols-outlined">chevron_right</span></button>';
+            pg.innerHTML = html;
+        }
+
+        function goPage(n) {
+            var total = Math.ceil(filtered.length / perPage);
+            if (n < 1 || n > total) return;
+            currentPage = n;
+            render();
+        }
+
+        // ── Filters ───────────────────────────────────────────
+        function applyFilter() {
+            var q     = (document.getElementById('searchInput').value || '').toLowerCase();
+            var off   = document.getElementById('officeFilter').value;
+            var cat   = document.getElementById('catFilter').value;
+            var brgy  = document.getElementById('brgyFilter').value;
+            var dateF = document.getElementById('dateFilter').value;
+            var now   = new Date();
+
+            filtered = allResolved.filter(function(r) {
+                var concern  = (r.concern || r.issue || '').toLowerCase();
+                var barangay = (r.barangay || '').toLowerCase();
+                var nc       = normCategory(r.category);
+                var office   = r.assignedOffice
+                    ? (typeof r.assignedOffice === 'object' ? r.assignedOffice.name : r.assignedOffice)
+                    : '';
+
+                if (q    && !concern.includes(q) && !barangay.includes(q)) return false;
+                if (off  && !office.includes(off))                          return false;
+                if (cat  && nc !== cat)                                     return false;
+                if (brgy && r.barangay !== brgy)                            return false;
+
+                if (dateF && dateF !== 'All Resolution Dates') {
+                    var rd = new Date(r.resolvedAt || r.resolved_at);
+                    if (isNaN(rd)) return false;
+                    var diffMs = now - rd;
+                    if (dateF === 'This Week'     && diffMs > 7  * 86400000) return false;
+                    if (dateF === 'This Month'    && diffMs > 30 * 86400000) return false;
+                    if (dateF === 'Last 3 Months' && diffMs > 90 * 86400000) return false;
+                }
+                return true;
+            });
+            currentPage = 1;
+            render();
+        }
+
+        var doFilter = Utils.debounce(applyFilter, 250);
+        ['searchInput','officeFilter','catFilter','brgyFilter','dateFilter'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', doFilter);
+                el.addEventListener('change', applyFilter);
+            }
+        });
+
+        // ── Load from real API ────────────────────────────────
+        async function loadResolved() {
+            Skeleton.injectTableRows('resolvedTableBody', 6, 9);
+            try {
+                var results = await Promise.all([
+                    Api.get('/api/admin/citizen-reports', { status: 'Resolved', limit: 500 }),
+                    Api.get('/api/admin/citizen-reports/summary'),
+                ]);
+                var listJson    = results[0];
+                var summaryJson = results[1];
+
+                if (!listJson || !listJson.success) throw new Error('API error');
+
+                allResolved = (listJson.data && listJson.data.data)
+                    ? listJson.data.data
+                    : (listJson.data || []);
+
+                allResolved.sort(function(a, b) {
+                    return new Date(b.resolvedAt || b.resolved_at || 0)
+                         - new Date(a.resolvedAt || a.resolved_at || 0);
+                });
+
+                var totalAll = (summaryJson && summaryJson.success)
+                    ? (summaryJson.data.total || 0) : '—';
+
+                updateStats(totalAll, allResolved);
+                filtered = allResolved.slice();
+                render();
+            } catch (e) {
+                document.getElementById('resolvedTableBody').innerHTML =
+                    '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--gray-400);">'
+                    + '<span class="material-symbols-outlined" style="display:block;font-size:36px;margin-bottom:8px">wifi_off</span>'
+                    + 'Could not load reports. Check your connection.</td></tr>';
+                console.error('Resolved load failed:', e);
+            }
+        }
+
+        loadResolved();
+        setInterval(loadResolved, 30000);
+    </script>
 </body>
 </html>

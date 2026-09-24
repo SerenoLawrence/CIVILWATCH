@@ -1,357 +1,538 @@
 <!DOCTYPE html>
 <html lang="en">
 <script>
-  (function(){
-    var role = localStorage.getItem('cw_role');
-    if (!role) { window.location.replace('index.html'); }
-    else if (role !== 'super_admin') {
-      window.location.replace(role === 'ceo' ? 'offices/ceo/dashboard.html' : 'offices/cenro/dashboard.html');
-    }
-  })();
+    (function() {
+        var role = localStorage.getItem('cw_role');
+        if (!role) {
+            window.location.replace('index.html');
+        } else if (role !== 'super_admin') {
+            window.location.replace(role === 'ceo' ? 'offices/ceo/dashboard.html' : 'offices/cenro/dashboard.html');
+        }
+    })();
 </script>
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Monitoring — CIVILWATCH Admin</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-  <link rel="stylesheet" href="/css/variables.css" />
-  <link rel="stylesheet" href="/css/global.css" />
-  <link rel="stylesheet" href="/css/layout.css" />
-  <link rel="stylesheet" href="/css/sidebar.css" />
-  <link rel="stylesheet" href="/css/navbar.css" />
-  <link rel="stylesheet" href="/css/cards.css" />
-  <link rel="stylesheet" href="/css/buttons.css" />
-  <link rel="stylesheet" href="/css/tables.css" />
-  <link rel="stylesheet" href="/css/badges.css" />
-  <link rel="stylesheet" href="/css/responsive.css" />
-  <style>
-    .overview-strip {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 14px;
-      margin-bottom: 22px;
-    }
-    .update-modal-body { display:flex; flex-direction:column; gap:14px; }
-    .status-option {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 14px;
-      border: 2px solid var(--gray-200);
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    .status-option:hover { border-color: var(--primary); background: var(--primary-light); }
-    .status-option.selected { border-color: var(--primary); background: var(--primary-light); }
-    .status-option-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monitoring — CIVILWATCH Admin</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/css/variables.css" />
+    <link rel="stylesheet" href="/css/global.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/sidebar.css" />
+    <link rel="stylesheet" href="/css/navbar.css" />
+    <link rel="stylesheet" href="/css/cards.css" />
+    <link rel="stylesheet" href="/css/buttons.css" />
+    <link rel="stylesheet" href="/css/tables.css" />
+    <link rel="stylesheet" href="/css/badges.css" />
+    <link rel="stylesheet" href="/css/responsive.css" />
+    <style>
+        .overview-strip {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .update-modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .status-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .status-option:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .status-option.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .status-option-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+    </style>
 </head>
+
 <body data-page="monitoring">
-<div class="app-wrapper">
-  <aside class="sidebar" id="sidebar"></aside>
-  <div class="main-area" id="mainArea">
-    <nav class="navbar" id="navbar"></nav>
-    <main class="page-content">
+    <div class="app-wrapper">
+        <aside class="sidebar" id="sidebar"></aside>
+        <div class="main-area" id="mainArea">
+            <nav class="navbar" id="navbar"></nav>
+            <main class="page-content">
 
-      <!-- Header -->
-      <div class="page-header">
-        <h1 class="page-title">Monitoring</h1>
-        <p class="page-subtitle">Track and update the progress of assigned reports.</p>
-      </div>
+                <!-- Header -->
+                <div class="page-header">
+                    <h1 class="page-title">Monitoring</h1>
+                    <p class="page-subtitle">Track and update the progress of assigned reports.</p>
+                </div>
 
-      <!-- Overview Strip -->
-      <div class="overview-strip">
-        <div class="overview-card">
-          <div class="overview-icon all"><span class="material-symbols-outlined">description</span></div>
-          <div class="overview-info">
-            <div class="overview-value">36</div>
-            <div class="overview-label">All Reports</div>
-            <div class="overview-sublabel">Total reports</div>
-          </div>
-        </div>
-        <div class="overview-card">
-          <div class="overview-icon assigned"><span class="material-symbols-outlined">assignment_ind</span></div>
-          <div class="overview-info">
-            <div class="overview-value">12</div>
-            <div class="overview-label">Assigned</div>
-            <div class="overview-sublabel">Awaiting action</div>
-          </div>
-        </div>
-        <div class="overview-card">
-          <div class="overview-icon progress"><span class="material-symbols-outlined">autorenew</span></div>
-          <div class="overview-info">
-            <div class="overview-value">18</div>
-            <div class="overview-label">In Progress</div>
-            <div class="overview-sublabel">Ongoing work</div>
-          </div>
-        </div>
-        <div class="overview-card">
-          <div class="overview-icon resolved"><span class="material-symbols-outlined">check_circle</span></div>
-          <div class="overview-info">
-            <div class="overview-value">6</div>
-            <div class="overview-label">Resolved</div>
-            <div class="overview-sublabel">Completed</div>
-          </div>
-        </div>
-        <div class="overview-card">
-          <div class="overview-icon pending"><span class="material-symbols-outlined">schedule</span></div>
-          <div class="overview-info">
-            <div class="overview-value">8</div>
-            <div class="overview-label">Pending Validation</div>
-            <div class="overview-sublabel">Not yet validated</div>
-          </div>
-        </div>
-      </div>
+                <!-- Overview Strip -->
+                <div class="overview-strip">
+                    <div class="overview-card">
+                        <div class="overview-icon all"><span class="material-symbols-outlined">description</span></div>
+                        <div class="overview-info">
+                            <div class="overview-value" id="statAll">—</div>
+                            <div class="overview-label">All Reports</div>
+                            <div class="overview-sublabel">Total reports</div>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-icon assigned"><span class="material-symbols-outlined">assignment_ind</span></div>
+                        <div class="overview-info">
+                            <div class="overview-value" id="statAssigned">—</div>
+                            <div class="overview-label">Assigned</div>
+                            <div class="overview-sublabel">Awaiting action</div>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-icon progress"><span class="material-symbols-outlined">autorenew</span></div>
+                        <div class="overview-info">
+                            <div class="overview-value" id="statInProgress">—</div>
+                            <div class="overview-label">In Progress</div>
+                            <div class="overview-sublabel">Ongoing work</div>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-icon resolved"><span class="material-symbols-outlined">check_circle</span></div>
+                        <div class="overview-info">
+                            <div class="overview-value" id="statResolved">—</div>
+                            <div class="overview-label">Resolved</div>
+                            <div class="overview-sublabel">Completed</div>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-icon pending"><span class="material-symbols-outlined">schedule</span></div>
+                        <div class="overview-info">
+                            <div class="overview-value" id="statPending">—</div>
+                            <div class="overview-label">Pending Validation</div>
+                            <div class="overview-sublabel">Not yet validated</div>
+                        </div>
+                    </div>
+                </div>
 
-      <!-- Toolbar -->
-      <div class="table-toolbar">
-        <div class="search-input-wrap">
-          <span class="material-symbols-outlined">search</span>
-          <input type="text" class="search-input" id="searchInput" placeholder="Search reports..." />
-        </div>
-        <select class="filter-select" id="statusFilter">
-          <option value="">All Statuses</option>
-          <option value="Assigned">Assigned</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Resolved">Resolved</option>
-          <option value="Pending Validation">Pending Validation</option>
-        </select>
-        <select class="filter-select" id="officeFilter">
-          <option value="">All Offices</option>
-          <option value="City Engineering Office">City Engineering Office</option>
-          <option value="CENRO">CENRO</option>
-        </select>
-        <select class="filter-select" id="catFilter">
-          <option value="">All Categories</option>
-          <option value="Infrastructure">Infrastructure</option>
-          <option value="Environmental">Environmental</option>
-        </select>
-        <select class="filter-select" id="brgyFilter">
-          <option value="">All Barangays</option>
-          <option>Aplaya</option><option>Carmen</option>
-          <option>Zone II</option><option>Zone III</option>
-          <option>Magsaysay</option><option>Badiang</option>
-        </select>
-        <div class="date-filter">
-          <span class="material-symbols-outlined">calendar_today</span>
-          May 1, 2025 – May 21, 2026
-        </div>
-      </div>
+                <!-- Toolbar -->
+                <div class="table-toolbar">
+                    <div class="search-input-wrap">
+                        <span class="material-symbols-outlined">search</span>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search reports..." />
+                    </div>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">All Statuses</option>
+                        <option value="Assigned">Assigned</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Pending Validation">Pending Validation</option>
+                    </select>
+                    <select class="filter-select" id="officeFilter">
+                        <option value="">All Offices</option>
+                        <option value="City Engineering Office">City Engineering Office</option>
+                        <option value="CENRO">CENRO</option>
+                    </select>
+                    <select class="filter-select" id="catFilter">
+                        <option value="">All Categories</option>
+                        <option value="Infrastructure">Infrastructure</option>
+                        <option value="Environmental">Environmental</option>
+                    </select>
+                    <select class="filter-select" id="brgyFilter">
+                        <option value="">All Barangays</option>
+                        <option>Aplaya</option>
+                        <option>Carmen</option>
+                        <option>Zone II</option>
+                        <option>Zone III</option>
+                        <option>Magsaysay</option>
+                        <option>Badiang</option>
+                    </select>
+                    <div class="date-filter">
+                        <span class="material-symbols-outlined">calendar_today</span>
+                        May 1, 2025 – May 21, 2026
+                    </div>
+                </div>
 
-      <!-- Tabs -->
-      <div class="tab-bar">
-        <button class="tab-btn active" data-tab="all" onclick="switchTab(this,'all')">All (36)</button>
-        <button class="tab-btn" data-tab="Assigned" onclick="switchTab(this,'Assigned')">Assigned (12)</button>
-        <button class="tab-btn" data-tab="In Progress" onclick="switchTab(this,'In Progress')">In Progress (18)</button>
-        <button class="tab-btn" data-tab="Resolved" onclick="switchTab(this,'Resolved')">Resolved (6)</button>
-        <button class="tab-btn" data-tab="Pending Validation" onclick="switchTab(this,'Pending Validation')">Pending Validation (8)</button>
-      </div>
+                <!-- Tabs -->
+                <div class="tab-bar">
+                    <button class="tab-btn active" data-tab="all" onclick="switchTab(this,'all')">All (<span id="tabAll">—</span>)</button>
+                    <button class="tab-btn" data-tab="Assigned to Office" onclick="switchTab(this,'Assigned to Office')">Assigned (<span id="tabAssigned">—</span>)</button>
+                    <button class="tab-btn" data-tab="In Progress" onclick="switchTab(this,'In Progress')">In Progress (<span id="tabInProgress">—</span>)</button>
+                    <button class="tab-btn" data-tab="Resolved" onclick="switchTab(this,'Resolved')">Resolved (<span id="tabResolved">—</span>)</button>
+                    <button class="tab-btn" data-tab="Pending Validation" onclick="switchTab(this,'Pending Validation')">Pending Validation (<span id="tabPending">—</span>)</button>
+                </div>
 
-      <!-- Table -->
-      <div class="card">
-        <div class="table-container" style="border:none;">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>REPORT</th>
-                <th>ISSUE</th>
-                <th>BARANGAY</th>
-                <th>ASSIGNED OFFICE</th>
-                <th>STATUS</th>
-                <th>LAST UPDATE</th>
-                <th>ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody id="monitoringTableBody"></tbody>
-          </table>
+                <!-- Table -->
+                <div class="card">
+                    <div class="table-container" style="border:none;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>REPORT</th>
+                                    <th>ISSUE</th>
+                                    <th>BARANGAY</th>
+                                    <th>ASSIGNED OFFICE</th>
+                                    <th>STATUS</th>
+                                    <th>LAST UPDATE</th>
+                                    <th>ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="monitoringTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <span class="table-showing" id="showingLabel">Showing 1 to 6 of 36 results</span>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div class="pagination" id="pagination"></div>
+                            <select class="per-page-select">
+                                <option>10 / page</option>
+                                <option>20 / page</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
         </div>
-        <div class="table-footer">
-          <span class="table-showing" id="showingLabel">Showing 1 to 6 of 36 results</span>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div class="pagination" id="pagination"></div>
-            <select class="per-page-select">
-              <option>10 / page</option>
-              <option>20 / page</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-    </main>
-  </div>
-</div>
-
-<!-- Update Progress Modal -->
-<div class="overlay" id="updateOverlay" onclick="closeUpdateModal()"></div>
-<div class="modal" id="updateModal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <span class="modal-title">Update Progress</span>
-      <button class="modal-close" onclick="closeUpdateModal()"><span class="material-symbols-outlined">close</span></button>
     </div>
-    <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px;">Report: <strong id="updateReportId"></strong></p>
-    <div class="update-modal-body">
-      <div class="status-option" data-status="Assigned" onclick="selectStatus(this)">
-        <div class="status-option-dot" style="background:#1A56DB"></div>
-        <div>
-          <div style="font-size:14px;font-weight:600;color:var(--gray-800)">Assigned</div>
-          <div style="font-size:12px;color:var(--gray-500)">Report has been assigned to an office</div>
+
+    <!-- Update Progress Modal -->
+    <div class="overlay" id="updateOverlay" onclick="closeUpdateModal()"></div>
+    <div class="modal" id="updateModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">Update Progress</span>
+                <button class="modal-close" onclick="closeUpdateModal()"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px;">Report: <strong id="updateReportId"></strong></p>
+            <div class="update-modal-body">
+                <div class="status-option" data-status="Assigned" onclick="selectStatus(this)">
+                    <div class="status-option-dot" style="background:#1A56DB"></div>
+                    <div>
+                        <div style="font-size:14px;font-weight:600;color:var(--gray-800)">Assigned</div>
+                        <div style="font-size:12px;color:var(--gray-500)">Report has been assigned to an office</div>
+                    </div>
+                </div>
+                <div class="status-option selected" data-status="In Progress" onclick="selectStatus(this)">
+                    <div class="status-option-dot" style="background:#F97316"></div>
+                    <div>
+                        <div style="font-size:14px;font-weight:600;color:var(--gray-800)">In Progress</div>
+                        <div style="font-size:12px;color:var(--gray-500)">Office is actively working on the issue</div>
+                    </div>
+                </div>
+                <div class="status-option" data-status="Resolved" onclick="selectStatus(this)">
+                    <div class="status-option-dot" style="background:#10B981"></div>
+                    <div>
+                        <div style="font-size:14px;font-weight:600;color:var(--gray-800)">Resolved</div>
+                        <div style="font-size:12px;color:var(--gray-500)">Issue has been resolved</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top:16px;">
+                <label class="form-label">Progress Note (Optional)</label>
+                <textarea class="form-textarea" placeholder="Describe the current progress..." rows="2"></textarea>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+                <button class="btn btn-secondary" onclick="closeUpdateModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmUpdate()">
+                    <span class="material-symbols-outlined">save</span> Save Update
+                </button>
+            </div>
         </div>
-      </div>
-      <div class="status-option selected" data-status="In Progress" onclick="selectStatus(this)">
-        <div class="status-option-dot" style="background:#F97316"></div>
-        <div>
-          <div style="font-size:14px;font-weight:600;color:var(--gray-800)">In Progress</div>
-          <div style="font-size:12px;color:var(--gray-500)">Office is actively working on the issue</div>
-        </div>
-      </div>
-      <div class="status-option" data-status="Resolved" onclick="selectStatus(this)">
-        <div class="status-option-dot" style="background:#10B981"></div>
-        <div>
-          <div style="font-size:14px;font-weight:600;color:var(--gray-800)">Resolved</div>
-          <div style="font-size:12px;color:var(--gray-500)">Issue has been resolved</div>
-        </div>
-      </div>
     </div>
-    <div class="form-group" style="margin-top:16px;">
-      <label class="form-label">Progress Note (Optional)</label>
-      <textarea class="form-textarea" placeholder="Describe the current progress..." rows="2"></textarea>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
-      <button class="btn btn-secondary" onclick="closeUpdateModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="confirmUpdate()">
-        <span class="material-symbols-outlined">save</span> Save Update
-      </button>
-    </div>
-  </div>
-</div>
 
-<script src="/js/utils.js"></script>
-<script src="/js/app.js"></script>
-<script>
-const monitoringData = [
-  { id:'CW-2026-218', ref:'Submitted: May 20, 2026', issue:'Damaged Road',        cat:'Infrastructure', barangay:'Aplaya',    office:'City Engineering Office', status:'In Progress',        lastUpdate:'May 21, 2026\n10:15 AM', by:'City Engineering Office' },
-  { id:'CW-2026-217', ref:'Submitted: May 20, 2026', issue:'Illegal Dumping',     cat:'Environmental',  barangay:'Carmen',    office:'CENRO',                   status:'Assigned',           lastUpdate:'May 20, 2026\n09:40 AM', by:'CENRO' },
-  { id:'CW-2026-216', ref:'Submitted: May 19, 2026', issue:'Damaged Sidewalk',    cat:'Infrastructure', barangay:'Zone II',   office:'City Engineering Office', status:'Assigned',           lastUpdate:'May 20, 2026\n04:30 PM', by:'City Engineering Office' },
-  { id:'CW-2026-215', ref:'Submitted: May 19, 2026', issue:'Broken Streetlight',  cat:'Infrastructure', barangay:'Zone III',  office:'City Engineering Office', status:'Resolved',           lastUpdate:'May 21, 2026\n08:20 AM', by:'City Engineering Office' },
-  { id:'CW-2026-214', ref:'Submitted: May 18, 2026', issue:'Blocked Drainage',    cat:'Infrastructure', barangay:'Magsaysay', office:'City Engineering Office', status:'In Progress',        lastUpdate:'May 21, 2026\n11:05 AM', by:'City Engineering Office' },
-  { id:'CW-2026-213', ref:'Submitted: May 18, 2026', issue:'Overgrown Vegetation',cat:'Environmental',  barangay:'Badiang',   office:'CENRO',                   status:'Resolved',           lastUpdate:'May 20, 2026\n02:10 PM', by:'CENRO' },
-];
+    <script src="/js/utils.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        var allReports = [];
+        var filtered = [];
+        var activeTab = 'all';
+        var currentPage = 1;
+        var perPage = 10;
+        var activeUpdateId = null;
 
-let filtered = [...monitoringData];
-let activeTab = 'all';
+        // ── Helpers ───────────────────────────────────────────
+        function fmtDate(str) {
+            if (!str) return '—';
+            var d = new Date(str);
+            if (isNaN(d)) return str;
+            return d.toLocaleDateString('en-PH', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                }) +
+                '\n' + d.toLocaleTimeString('en-PH', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+        }
 
-function render() {
-  const tbody = document.getElementById('monitoringTableBody');
-  const data = activeTab === 'all' ? filtered : filtered.filter(r => r.status === activeTab);
-  tbody.innerHTML = data.map(r => `
-    <tr>
-      <td>
-        <div class="report-cell">
-          <img class="table-photo" src="${getPhotoUrl(r.issue)}" alt="${r.issue}"
-               onerror="this.style.display='none'" />
-          <div class="report-cell-info">
-            <span class="ref-id">${r.id}</span>
-            <span class="report-date-sub">${r.ref}</span>
-          </div>
-        </div>
-      </td>
-      <td>
-        <div class="table-issue">
-          <span class="table-issue-name">${r.issue}</span>
-          <span>${Utils.categoryBadge(r.cat)}</span>
-        </div>
-      </td>
-      <td>${r.barangay}</td>
-      <td>
-        <div class="office-cell">
-          <span class="material-symbols-outlined">${r.cat === 'Infrastructure' ? 'business' : 'eco'}</span>
-          ${r.office}
-        </div>
-      </td>
-      <td>${Utils.statusBadge(r.status)}</td>
-      <td>
-        <div style="font-size:12px;color:var(--gray-700);">${r.lastUpdate.split('\n')[0]}</div>
-        <div style="font-size:11px;color:var(--gray-400);">${r.lastUpdate.split('\n')[1] || ''}</div>
-        <div style="font-size:11px;color:var(--gray-400);">By: ${r.by}</div>
-      </td>
-      <td>
-        <div class="actions-cell">
-          <a href="report-details.html?id=${r.id}" class="btn-view">
-            <span class="material-symbols-outlined">visibility</span> View
-          </a>
-          ${r.status !== 'Resolved' ? `<button class="btn btn-sm btn-primary" style="padding:6px 10px;" onclick="openUpdateModal('${r.id}')">
-            <span class="material-symbols-outlined">update</span>
-          </button>` : ''}
-        </div>
-      </td>
-    </tr>
-  `).join('') || `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--gray-400);">No reports found</td></tr>`;
-  document.getElementById('showingLabel').textContent = `Showing 1 to ${data.length} of 36 results`;
-  renderPagination();
-}
+        function normCategory(c) {
+            if (!c) return '';
+            var lc = c.toLowerCase();
+            if (lc === 'infrastructure') return 'Infrastructure';
+            if (lc === 'environment' || lc === 'environmental') return 'Environmental';
+            return c;
+        }
 
-function renderPagination() {
-  document.getElementById('pagination').innerHTML = `
-    <button class="page-btn"><span class="material-symbols-outlined">chevron_left</span></button>
-    <button class="page-btn active">1</button>
-    <button class="page-btn">2</button>
-    <button class="page-btn">3</button>
-    <button class="page-btn">4</button>
-    <button class="page-btn"><span class="material-symbols-outlined">chevron_right</span></button>
-  `;
-}
+        // ── Render table ──────────────────────────────────────
+        function render() {
+            var tbody = document.getElementById('monitoringTableBody');
+            var tabData = activeTab === 'all' ?
+                filtered :
+                filtered.filter(function(r) {
+                    return r.status === activeTab;
+                });
 
-function switchTab(btn, tab) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  activeTab = tab;
-  render();
-}
+            var start = (currentPage - 1) * perPage;
+            var page = tabData.slice(start, start + perPage);
 
-// Filters
-const doFilter = Utils.debounce(() => {
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  const st = document.getElementById('statusFilter').value;
-  const off = document.getElementById('officeFilter').value;
-  const cat = document.getElementById('catFilter').value;
-  const brgy = document.getElementById('brgyFilter').value;
-  filtered = monitoringData.filter(r =>
-    (!q   || r.issue.toLowerCase().includes(q) || r.id.toLowerCase().includes(q)) &&
-    (!st  || r.status === st) &&
-    (!off || r.office.includes(off)) &&
-    (!cat || r.cat === cat) &&
-    (!brgy || r.barangay === brgy)
-  );
-  render();
-}, 250);
+            if (tabData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--gray-400);">' +
+                    '<span class="material-symbols-outlined" style="font-size:36px;display:block;margin-bottom:8px">inbox</span>' +
+                    'No reports found.</td></tr>';
+                document.getElementById('showingLabel').textContent = 'No results';
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
 
-['searchInput','statusFilter','officeFilter','catFilter','brgyFilter'].forEach(id => {
-  document.getElementById(id)?.addEventListener('change', doFilter);
-  document.getElementById(id)?.addEventListener('input', doFilter);
-});
+            tbody.innerHTML = page.map(function(r) {
+                var ref = r.referenceNumber || r.reference_number || String(r.id);
+                var concern = r.concern || r.issue || '—';
+                var cat = normCategory(r.category);
+                var barangay = r.barangay || '—';
+                var status = r.status || '—';
+                var photo = r.imageUrl || r.photo_url || null;
+                var office = r.assignedOffice ?
+                    (typeof r.assignedOffice === 'object' ? r.assignedOffice.name : r.assignedOffice) :
+                    '—';
+                var updated = fmtDate(r.updatedAt || r.updated_at || r.created_at);
+                var isInfra = cat === 'Infrastructure';
 
-// Update modal
-function openUpdateModal(id) {
-  document.getElementById('updateReportId').textContent = id;
-  document.getElementById('updateModal').classList.add('active');
-  document.getElementById('updateOverlay').classList.add('active');
-}
-function closeUpdateModal() {
-  document.getElementById('updateModal').classList.remove('active');
-  document.getElementById('updateOverlay').classList.remove('active');
-}
-function selectStatus(el) {
-  document.querySelectorAll('.status-option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-}
-function confirmUpdate() {
-  closeUpdateModal();
-  Utils.showToast('Status updated successfully!', 'success');
-}
+                var photoCell = photo ?
+                    '<img class="table-photo" src="' + photo + '" alt="' + concern + '" onerror="this.style.display=\'none\'" />' :
+                    '<div class="table-photo-placeholder"><span class="material-symbols-outlined">image</span></div>';
 
-render();
-</script>
+                return '<tr>' +
+                    '<td><div class="report-cell">' +
+                    photoCell +
+                    '<div class="report-cell-info">' +
+                    '<span class="ref-id">' + ref + '</span>' +
+                    '</div>' +
+                    '</div></td>' +
+                    '<td><div class="table-issue">' +
+                    '<span class="table-issue-name">' + concern + '</span>' +
+                    '<span>' + Utils.categoryBadge(cat) + '</span>' +
+                    '</div></td>' +
+                    '<td>' + barangay + '</td>' +
+                    '<td><div class="office-cell">' +
+                    '<span class="material-symbols-outlined">' + (isInfra ? 'business' : 'eco') + '</span>' +
+                    office +
+                    '</div></td>' +
+                    '<td>' + Utils.statusBadge(status) + '</td>' +
+                    '<td>' +
+                    '<div style="font-size:12px;color:var(--gray-700);">' + updated.split('\n')[0] + '</div>' +
+                    '<div style="font-size:11px;color:var(--gray-400);">' + (updated.split('\n')[1] || '') + '</div>' +
+                    '</td>' +
+                    '<td><div class="actions-cell">' +
+                    '<a href="report-details.html?id=' + r.id + '" class="btn-view">' +
+                    '<span class="material-symbols-outlined">visibility</span> View' +
+                    '</a>' +
+                    (status !== 'Resolved' ?
+                        '<button class="btn btn-sm btn-primary" style="padding:6px 10px;" onclick="openUpdateModal(' + r.id + ',\'' + ref + '\')">' +
+                        '<span class="material-symbols-outlined">update</span>' +
+                        '</button>' :
+                        '') +
+                    '</div></td>' +
+                    '</tr>';
+            }).join('');
+
+            var showing = 'Showing ' + (start + 1) + '\u2013' + Math.min(start + perPage, tabData.length) + ' of ' + tabData.length + ' results';
+            document.getElementById('showingLabel').textContent = showing;
+            renderPagination(tabData.length);
+        }
+
+        // ── Pagination ────────────────────────────────────────
+        function renderPagination(total) {
+            var pages = Math.ceil(total / perPage);
+            var pg = document.getElementById('pagination');
+            if (pages <= 1) {
+                pg.innerHTML = '';
+                return;
+            }
+            var html = '<button class="page-btn" onclick="goPage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + '>' +
+                '<span class="material-symbols-outlined">chevron_left</span></button>';
+            for (var i = 1; i <= pages; i++) {
+                html += '<button class="page-btn ' + (i === currentPage ? 'active' : '') + '" onclick="goPage(' + i + ')">' + i + '</button>';
+            }
+            html += '<button class="page-btn" onclick="goPage(' + (currentPage + 1) + ')" ' + (currentPage === pages ? 'disabled' : '') + '>' +
+                '<span class="material-symbols-outlined">chevron_right</span></button>';
+            pg.innerHTML = html;
+        }
+
+        function goPage(n) {
+            var tabData = activeTab === 'all' ? filtered : filtered.filter(function(r) {
+                return r.status === activeTab;
+            });
+            var pages = Math.ceil(tabData.length / perPage);
+            if (n < 1 || n > pages) return;
+            currentPage = n;
+            render();
+        }
+
+        // ── Tab switch ────────────────────────────────────────
+        function switchTab(btn, tab) {
+            document.querySelectorAll('.tab-btn').forEach(function(b) {
+                b.classList.remove('active');
+            });
+            btn.classList.add('active');
+            activeTab = tab;
+            currentPage = 1;
+            render();
+        }
+
+        // ── Update stat counts ────────────────────────────────
+        function updateStats(data) {
+            var counts = {
+                all: data.length,
+                assigned: 0,
+                inProgress: 0,
+                resolved: 0,
+                pending: 0
+            };
+            data.forEach(function(r) {
+                var s = r.status || '';
+                if (s === 'Assigned to Office') counts.assigned++;
+                else if (s === 'In Progress') counts.inProgress++;
+                else if (s === 'Resolved') counts.resolved++;
+                else if (s === 'Submitted' || s === 'Pending Validation') counts.pending++;
+            });
+            document.getElementById('statAll').textContent = counts.all;
+            document.getElementById('statAssigned').textContent = counts.assigned;
+            document.getElementById('statInProgress').textContent = counts.inProgress;
+            document.getElementById('statResolved').textContent = counts.resolved;
+            document.getElementById('statPending').textContent = counts.pending;
+            document.getElementById('tabAll').textContent = counts.all;
+            document.getElementById('tabAssigned').textContent = counts.assigned;
+            document.getElementById('tabInProgress').textContent = counts.inProgress;
+            document.getElementById('tabResolved').textContent = counts.resolved;
+            document.getElementById('tabPending').textContent = counts.pending;
+        }
+
+        // ── Filters ───────────────────────────────────────────
+        function applyFilter() {
+            var q = (document.getElementById('searchInput').value || '').toLowerCase();
+            var st = document.getElementById('statusFilter').value;
+            var off = document.getElementById('officeFilter').value;
+            var cat = document.getElementById('catFilter').value;
+            var brgy = document.getElementById('brgyFilter').value;
+
+            filtered = allReports.filter(function(r) {
+                var concern = (r.concern || r.issue || '').toLowerCase();
+                var ref = (r.referenceNumber || r.reference_number || '').toLowerCase();
+                var barangay = (r.barangay || '').toLowerCase();
+                var office = r.assignedOffice ?
+                    (typeof r.assignedOffice === 'object' ? r.assignedOffice.name : r.assignedOffice) :
+                    '';
+                var normCat = normCategory(r.category);
+                var matchQ = !q || concern.includes(q) || ref.includes(q) || barangay.includes(q);
+                var matchSt = !st || r.status === st;
+                var matchOff = !off || office.includes(off);
+                var matchCat = !cat || normCat === cat;
+                var matchBrgy = !brgy || r.barangay === brgy;
+                return matchQ && matchSt && matchOff && matchCat && matchBrgy;
+            });
+            currentPage = 1;
+            render();
+        }
+
+        var doFilter = Utils.debounce(applyFilter, 250);
+        ['searchInput', 'statusFilter', 'officeFilter', 'catFilter', 'brgyFilter'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('change', applyFilter);
+                el.addEventListener('input', doFilter);
+            }
+        });
+
+        // ── Update progress modal ─────────────────────────────
+        function openUpdateModal(id, ref) {
+            activeUpdateId = id;
+            document.getElementById('updateReportId').textContent = ref || id;
+            document.getElementById('updateModal').classList.add('active');
+            document.getElementById('updateOverlay').classList.add('active');
+        }
+
+        function closeUpdateModal() {
+            activeUpdateId = null;
+            document.getElementById('updateModal').classList.remove('active');
+            document.getElementById('updateOverlay').classList.remove('active');
+        }
+
+        function selectStatus(el) {
+            document.querySelectorAll('.status-option').forEach(function(o) {
+                o.classList.remove('selected');
+            });
+            el.classList.add('selected');
+        }
+        async function confirmUpdate() {
+            if (!activeUpdateId) return;
+            var selectedEl = document.querySelector('.status-option.selected');
+            var newStatus = selectedEl ? selectedEl.dataset.status : 'In Progress';
+            var note = document.querySelector('#updateModal .form-textarea').value.trim();
+            closeUpdateModal();
+            await Api.action('POST', '/api/admin/citizen-reports/' + activeUpdateId + '/status', {
+                status: newStatus,
+                description: note || null
+            }, {
+                loading: 'Updating status\u2026',
+                success: 'Status updated to: ' + newStatus,
+                successTitle: 'Status Updated',
+                errorTitle: 'Update Failed',
+                onAction: function() {
+                    loadReports();
+                }
+            });
+        }
+
+        // ── Load real data from API ───────────────────────────
+        async function loadReports() {
+            Skeleton.injectTableRows('monitoringTableBody', 6, 7);
+            try {
+                var json = await Api.get('/api/admin/citizen-reports', {
+                    status: 'Assigned', // Only show assigned reports in monitoring
+                    limit: 500
+                });
+                if (!json || !json.success) throw new Error('API error');
+                allReports = (json.data && json.data.data) ? json.data.data : (json.data || []);
+                filtered = allReports.slice();
+                updateStats(allReports);
+                render();
+            } catch (e) {
+                document.getElementById('monitoringTableBody').innerHTML =
+                    '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--gray-400);">' +
+                    '<span class="material-symbols-outlined" style="font-size:36px;display:block;margin-bottom:8px">wifi_off</span>' +
+                    'Could not load reports. Check your connection.</td></tr>';
+                console.error('Monitoring load failed:', e);
+            }
+        }
+
+        // ── Boot ──────────────────────────────────────────────
+        loadReports();
+        setInterval(loadReports, 30000);
+    </script>
 </body>
+
 </html>

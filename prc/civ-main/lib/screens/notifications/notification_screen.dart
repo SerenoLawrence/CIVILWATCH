@@ -5,6 +5,7 @@ import '../../core/state/app_state.dart';
 import '../../core/utils/helpers.dart';
 import '../../models/notification_model.dart';
 import '../../widgets/cards/notification_card.dart';
+import '../../widgets/common/skeleton.dart';
 
 class NotificationScreen extends StatelessWidget {
   final bool embedded;
@@ -107,7 +108,9 @@ class NotificationScreen extends StatelessWidget {
 
                 // ── List ─────────────────────────────────────────────
                 Expanded(
-                  child: allNotifs.isEmpty
+                  child: state.isLoading
+                      ? const NotificationsSkeleton()
+                      : allNotifs.isEmpty
                       ? Center(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,

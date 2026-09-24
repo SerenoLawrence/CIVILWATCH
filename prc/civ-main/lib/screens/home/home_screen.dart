@@ -7,6 +7,7 @@ import '../../core/state/app_state.dart';
 import '../../core/utils/dummy_data.dart';
 import '../../core/utils/helpers.dart';
 import '../../widgets/common/section_title.dart';
+import '../../widgets/common/skeleton.dart';
 import '../../widgets/navigation/bottom_nav.dart';
 import '../../screens/my_reports/my_reports_screen.dart';
 import '../../screens/community_map/community_map_screen.dart';
@@ -56,11 +57,21 @@ class _HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Listen to AppState so list rebuilds whenever loading finishes
     return ListenableBuilder(
       listenable: AppState(),
       builder: (context, _) {
         final state = AppState();
         final user = state.currentUser;
+
+        // ── Show skeleton while data is loading from API ────────────────
+        if (state.isLoading) {
+          return const Scaffold(
+            backgroundColor: AppColors.background,
+            body: SafeArea(child: HomeTabSkeleton()),
+          );
+        }
+
         final pending = state.pendingCount;
         final inProgress = state.inProgressCount;
         final resolvedCount = state.resolvedCount;

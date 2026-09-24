@@ -412,15 +412,13 @@ class _ReportLocationScreenState extends State<ReportLocationScreen> {
                                         point: _pickedLatLng!,
                                         width: 40,
                                         height: 40,
-                                        child: GestureDetector(
-                                          onPanUpdate: (d) {
-                                            // basic drag simulation
-                                          },
-                                          child: const Icon(
-                                            Icons.location_pin,
-                                            color: Color(0xFFDC2626),
-                                            size: 40,
-                                          ),
+                                        // bottomCenter aligns the pin tip to the coordinate
+                                        // so it doesn't drift when the user zooms in/out
+                                        alignment: Alignment.bottomCenter,
+                                        child: const Icon(
+                                          Icons.location_pin,
+                                          color: Color(0xFFDC2626),
+                                          size: 40,
                                         ),
                                       ),
                                     ],

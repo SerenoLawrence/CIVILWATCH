@@ -5,6 +5,7 @@ import '../../core/routes/app_routes.dart';
 import '../../core/utils/helpers.dart';
 import '../../core/state/app_state.dart';
 import '../../models/user.dart';
+import '../../widgets/common/skeleton.dart';
 
 class ProfileScreen extends StatelessWidget {
   final bool embedded;
@@ -15,6 +16,15 @@ class ProfileScreen extends StatelessWidget {
     // Use the real logged-in user from AppState.
     // Falls back to a blank placeholder if somehow called without a session.
     final state = AppState();
+
+    // Show skeleton while data is loading from API
+    if (state.isLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(child: ProfileSkeleton()),
+      );
+    }
+
     final user = state.currentUser ?? AppUser(
       id: '',
       fullName: 'Loading...',

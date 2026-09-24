@@ -40,7 +40,16 @@ class AdminCitizenReportController extends Controller
 
         $reports = $query->paginate(25);
 
-        return response()->json(['success' => true, 'data' => $reports]);
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'data'          => $reports->getCollection()->map(fn($r) => $r->toApiArray())->values(),
+                'current_page'  => $reports->currentPage(),
+                'last_page'     => $reports->lastPage(),
+                'per_page'      => $reports->perPage(),
+                'total'         => $reports->total(),
+            ],
+        ]);
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -71,7 +80,11 @@ class AdminCitizenReportController extends Controller
         }
 
         $report->update(['is_public' => true]);
-        $report->transitionTo(CitizenReport::STATUS_PENDING_VALIDATION);
+
+        // Only transition if not already at Pending Validation
+        if ($report->status === CitizenReport::STATUS_SUBMITTED) {
+            $report->transitionTo(CitizenReport::STATUS_PENDING_VALIDATION);
+        }
 
         return response()->json([
             'success' => true,
@@ -131,7 +144,18 @@ class AdminCitizenReportController extends Controller
     // ─────────────────────────────────────────────────────────────────────
     public function map(Request $request): JsonResponse
     {
+        // ── CRITICAL: Only show reports that are ASSIGNED or later ───────
+        // - Submitted: NOT on map (not approved)
+        // - Pending Validation: NOT on map (approved but not assigned)
+        // - Assigned+: YES on map (assigned to office, ready to track)
         $query = CitizenReport::with('assignedOffice')
+            ->where('is_public', true)
+            ->where('assigned_office_id', '!=', null)  // ← MUST be assigned to an office
+            ->whereIn('status', [
+                CitizenReport::STATUS_ASSIGNED,
+                CitizenReport::STATUS_IN_PROGRESS,
+                CitizenReport::STATUS_RESOLVED,
+            ])
             ->whereNotNull('lat')
             ->whereNotNull('lng');
 

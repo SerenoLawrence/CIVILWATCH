@@ -457,7 +457,7 @@
                             <a href="#" class="quick-action-btn qa-notif" onclick="App.openNotif(); return false;">
                                 <div class="quick-action-icon" style="position:relative;">
                                     <span class="material-symbols-outlined">notifications</span>
-                                    <span style="position:absolute;top:-4px;right:-4px;background:#EF4444;color:white;font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;">3</span>
+                                    <span id="notifQuickBadge" style="position:absolute;top:-4px;right:-4px;background:#EF4444;color:white;font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;"></span>
                                 </div>
                                 <span class="quick-action-label">Notifications</span>
                             </a>
@@ -481,223 +481,204 @@
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         document.getElementById('currentDate').textContent =
-            `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()} | ${days[now.getDay()]}`;
+            months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear() + ' | ' + days[now.getDay()];
 
         // ── Personalise welcome name ──────────────────────────────
         const userName = localStorage.getItem('cw_name') || 'Super Administrator';
-        document.querySelector('.page-title').textContent = `Welcome back, ${userName}!`;
+        document.querySelector('.page-title').textContent = 'Welcome back, ' + userName + '!';
 
-        // ── Map setup ─────────────────────────────────────────────
-        const dashMap = L.map('dashMap', {
-                zoomControl: true,
-                scrollWheelZoom: false
-            })
-            .setView([6.7490, 125.3570], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
-        }).addTo(dashMap);
-
-        const PIN_COLORS = {
-            submitted: '#9CA3AF',
-            pending: '#F59E0B',
-            assigned: '#1A56DB',
-            in_progress: '#F97316',
-            for_resolution: '#F59E0B',
-            resolved: '#10B981',
-        };
-
-        function addMapPin(p) {
-            const color = PIN_COLORS[p.status] || '#9CA3AF';
-            const icon = L.divIcon({
-                className: '',
-                html: `<div style="width:26px;height:26px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>`,
-                iconSize: [26, 26],
-                iconAnchor: [13, 13],
-            });
-            L.marker([p.lat, p.lng], {
-                    icon
-                })
-                .addTo(dashMap)
-                .bindPopup(`
-                <div style="font-size:13px;font-weight:600;color:#111">${p.title}</div>
-                <div style="font-size:11px;color:#6B7280;margin-top:3px;">${p.status.replace(/_/g,' ')}</div>
-                <div style="font-size:11px;color:#6B7280;">${p.barangay || ''}</div>
-              `);
+        // ── Normalise helpers (citizen_reports uses Title Case) ────
+        function normStatus(s) {
+            return (s || '').trim();
         }
 
-        // ── Helpers ───────────────────────────────────────────────
-        function statusLabel(status) {
-            const map = {
-                submitted: {
-                    cls: 'badge-pending',
-                    icon: 'schedule',
-                    label: 'Submitted'
-                },
-                pending: {
-                    cls: 'badge-validation',
-                    icon: 'schedule',
-                    label: 'Pending Validation'
-                },
-                assigned: {
-                    cls: 'badge-assigned',
-                    icon: 'assignment_ind',
-                    label: 'Assigned'
-                },
-                in_progress: {
-                    cls: 'badge-inprogress',
-                    icon: 'autorenew',
-                    label: 'In Progress'
-                },
-                for_resolution: {
-                    cls: 'badge-validation',
-                    icon: 'schedule',
-                    label: 'For Resolution'
-                },
-                resolved: {
-                    cls: 'badge-resolved',
-                    icon: 'check_circle',
-                    label: 'Resolved'
-                },
-            };
-            const s = map[status] || {
-                cls: 'badge-pending',
-                icon: 'help',
-                label: status
-            };
-            return `<span class="badge ${s.cls}"><span class="material-symbols-outlined">${s.icon}</span>${s.label}</span>`;
+        function normCategory(c) {
+            if (!c) return '';
+            const lc = c.toLowerCase();
+            if (lc === 'infrastructure') return 'Infrastructure';
+            if (lc === 'environment' || lc === 'environmental') return 'Environmental';
+            return c;
         }
 
-        function catBadge(cat) {
-            if (!cat) return '';
-            if (cat === 'infrastructure') return `<span class="badge-infra"><span class="material-symbols-outlined">construction</span>Infrastructure</span>`;
-            if (cat === 'environmental') return `<span class="badge-env"><span class="material-symbols-outlined">eco</span>Environmental</span>`;
-            return `<span class="badge-infra">${cat}</span>`;
-        }
-
+        // ── Format date ───────────────────────────────────────────
         function fmtDate(str) {
             if (!str) return '—';
-            const d = new Date(str);
+            var d = new Date(str);
+            if (isNaN(d)) return str;
             return d.toLocaleDateString('en-PH', {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric'
                 }) +
-                ' · ' + d.toLocaleTimeString('en-PH', {
+                ' · ' +
+                d.toLocaleTimeString('en-PH', {
                     hour: '2-digit',
                     minute: '2-digit'
                 });
         }
 
+        function relTime(str) {
+            if (!str) return '—';
+            var d = new Date(str);
+            if (isNaN(d)) return str;
+            var mins = Math.floor((Date.now() - d) / 60000);
+            if (mins < 1) return 'just now';
+            if (mins < 60) return mins + ' min ago';
+            if (mins < 1440) return Math.floor(mins / 60) + ' hr ago';
+            return Math.floor(mins / 1440) + ' days ago';
+        }
+
+        // ── Map setup ─────────────────────────────────────────────
+        var dashMap = L.map('dashMap', {
+                zoomControl: true,
+                scrollWheelZoom: false
+            })
+            .setView([6.7490, 125.3570], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(dashMap);
+
+        var PIN_COLORS = {
+            'Submitted': '#9CA3AF',
+            'Pending Validation': '#F59E0B',
+            'Assigned to Office': '#1A56DB',
+            'In Progress': '#F97316',
+            'Resolved': '#10B981'
+        };
+
+        function addMapPin(p) {
+            if (!p.lat || !p.lng) return; // guard null coordinates
+            var color = PIN_COLORS[p.status] || '#9CA3AF';
+            var icon = L.divIcon({
+                className: '',
+                html: '<div style="width:26px;height:26px;border-radius:50%;background:' + color + ';border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>',
+                iconSize: [26, 26],
+                iconAnchor: [13, 13]
+            });
+            L.marker([p.lat, p.lng], {
+                    icon: icon
+                })
+                .addTo(dashMap)
+                .bindPopup('<div style="font-size:13px;font-weight:600;color:#111">' + (p.title || '—') + '</div>' +
+                    '<div style="font-size:11px;color:#6B7280;margin-top:3px;">' + (p.status || '') + '</div>' +
+                    '<div style="font-size:11px;color:#6B7280;">' + (p.barangay || '') + '</div>');
+        }
+
         // ── Load stat cards ───────────────────────────────────────
         async function loadStats() {
             try {
-                const json = await Api.get('/api/analytics/summary');
-                if (!json?.success) return;
-                const d = json.data;
-                const cards = document.querySelectorAll('#statCards .stat-card');
-                cards[0].querySelector('.stat-value').textContent = d.pending_validation?? 0;
-                cards[1].querySelector('.stat-value').textContent = d.assigned?? 0;
-                cards[2].querySelector('.stat-value').textContent = d.in_progress?? 0;
-                cards[3].querySelector('.stat-value').textContent = d.resolved?? 0;
-                cards[4].querySelector('.stat-value').textContent = d.total_reports?? 0;
+                var json = await Api.get('/api/admin/citizen-reports/summary');
+                if (!json || !json.success) return;
+                var d = json.data;
+                var cards = document.querySelectorAll('#statCards .stat-card');
+                cards[0].querySelector('.stat-value').textContent = ((d.submitted || 0) + (d.pending_validation || 0));
+                cards[1].querySelector('.stat-value').textContent = (d.assigned || 0);
+                cards[2].querySelector('.stat-value').textContent = (d.in_progress || 0);
+                cards[3].querySelector('.stat-value').textContent = (d.resolved || 0);
+                cards[4].querySelector('.stat-value').textContent = (d.total || 0);
             } catch (e) {
-                console.error('Stats load failed:', e);
+                console.error('Stats failed:', e);
             }
         }
 
         // ── Load recent reports table ─────────────────────────────
         async function loadRecentReports() {
-            const tbody = document.getElementById('recentReportsBody');
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:20px;">Loading...</td></tr>`;
+            var tbody = document.getElementById('recentReportsBody');
+            Skeleton.injectTableRows('recentReportsBody', 5, 5);
             try {
-                const json = await Api.get('/api/reports', {
-                    per_page: 5
+                var json = await Api.get('/api/admin/citizen-reports', {
+                    limit: 5
                 });
-                if (!json?.success) throw new Error();
-                const reports = json.data.data?? json.data?? [];
-                if (reports.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:20px;">No reports yet.</td></tr>`;
+                if (!json || !json.success) throw new Error('API error');
+                var list = (json.data && json.data.data) ? json.data.data : (json.data || []);
+                if (!list.length) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:20px;">' +
+                        '<span class="material-symbols-outlined" style="display:block;font-size:32px;margin-bottom:8px">inbox</span>' +
+                        'No reports yet.</td></tr>';
                     return;
                 }
-                tbody.innerHTML = reports.slice(0, 5).map(r => `
-                    <tr style="cursor:pointer" onclick="location.href='report-details.html?id=${r.id}'">
-                        <td><span class="ref-id">${r.reference_no}</span></td>
-                        <td>
-                            <div class="table-issue">
-                                <span class="table-issue-name">${r.title}</span>
-                                <span>${catBadge(r.category)}</span>
-                            </div>
-                        </td>
-                        <td>${r.barangay?? '—'}</td>
-                        <td>${statusLabel(r.status)}</td>
-                        <td style="color:var(--gray-500);font-size:12px;">${fmtDate(r.created_at)}</td>
-                    </tr>
-                `).join('');
+                tbody.innerHTML = list.slice(0, 5).map(function(r) {
+                    var ref = r.reference_number || r.referenceNumber || '—';
+                    var name = r.concern || r.issue || '—';
+                    var cat = normCategory(r.category);
+                    var st = normStatus(r.status);
+                    var dt = fmtDate(r.created_at || r.submittedAt);
+                    return '<tr style="cursor:pointer" onclick="location.href=\'report-details.html?id=' + r.id + '\'">' +
+                        '<td><span class="ref-id">' + ref + '</span></td>' +
+                        '<td><div class="table-issue">' +
+                        '<span class="table-issue-name">' + name + '</span>' +
+                        '<span>' + Utils.categoryBadge(cat) + '</span>' +
+                        '</div></td>' +
+                        '<td>' + (r.barangay || '—') + '</td>' +
+                        '<td>' + Utils.statusBadge(st) + '</td>' +
+                        '<td style="color:var(--gray-500);font-size:12px;">' + dt + '</td>' +
+                        '</tr>';
+                }).join('');
             } catch (e) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:20px;">Unable to load reports.</td></tr>`;
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:20px;">Unable to load reports.</td></tr>';
             }
         }
 
         // ── Load activity feed ────────────────────────────────────
         async function loadActivity() {
             try {
-                const json = await Api.get('/api/reports', {
-                    per_page: 5
+                var json = await Api.get('/api/admin/citizen-reports', {
+                    limit: 5
                 });
-                if (!json?.success) return;
-                const reports = json.data.data?? json.data?? [];
-                if (reports.length === 0) return;
+                if (!json || !json.success) return;
+                var list = (json.data && json.data.data) ? json.data.data : (json.data || []);
+                if (!list.length) return;
 
-                const iconMap = {
-                    submitted: {
+                var iconMap = {
+                    'Submitted': {
                         cls: 'submit',
                         icon: 'add_circle',
                         verb: 'New report submitted'
                     },
-                    pending: {
+                    'Pending Validation': {
                         cls: 'submit',
                         icon: 'schedule',
                         verb: 'Pending validation'
                     },
-                    assigned: {
+                    'Assigned to Office': {
                         cls: 'assign',
                         icon: 'assignment_ind',
                         verb: 'Report assigned'
                     },
-                    in_progress: {
+                    'In Progress': {
                         cls: 'progress',
                         icon: 'autorenew',
                         verb: 'Report in progress'
                     },
-                    resolved: {
+                    'Resolved': {
                         cls: 'resolved',
                         icon: 'check_circle',
                         verb: 'Report resolved'
-                    },
+                    }
+                };
+                var fallback = {
+                    cls: 'submit',
+                    icon: 'description',
+                    verb: 'Report updated'
                 };
 
-                const feed = document.getElementById('activityFeed');
-                feed.innerHTML = reports.map(r => {
-                    const im = iconMap[r.status] || {
-                        cls: 'submit',
-                        icon: 'description',
-                        verb: 'Report updated'
-                    };
-                    const mins = Math.floor((Date.now() - new Date(r.updated_at)) / 60000);
-                    const time = Utils.relativeTime ? Utils.relativeTime(mins) : fmtDate(r.updated_at);
-                    return `
-                        <div class="activity-item">
-                            <div class="activity-icon ${im.cls}">
-                                <span class="material-symbols-outlined">${im.icon}</span>
-                            </div>
-                            <div class="activity-text">
-                                <div class="activity-main">${im.verb}: <strong>${r.title}</strong></div>
-                                <div class="activity-sub">${r.barangay?? ''} · ${r.reference_no}</div>
-                            </div>
-                            <div class="activity-time">${time}</div>
-                        </div>
-                    `;
+                document.getElementById('activityFeed').innerHTML = list.map(function(r) {
+                    var st = normStatus(r.status);
+                    var im = iconMap[st] || fallback;
+                    var ref = r.reference_number || r.referenceNumber || '';
+                    var nm = r.concern || r.issue || 'Report';
+                    var t = relTime(r.created_at || r.submittedAt);
+                    return '<div class="activity-item">' +
+                        '<div class="activity-icon ' + im.cls + '">' +
+                        '<span class="material-symbols-outlined">' + im.icon + '</span>' +
+                        '</div>' +
+                        '<div class="activity-text">' +
+                        '<div class="activity-main">' + im.verb + ': <strong>' + nm + '</strong></div>' +
+                        '<div class="activity-sub">' + (r.barangay || '') + ' &middot; ' + ref + '</div>' +
+                        '</div>' +
+                        '<div class="activity-time">' + t + '</div>' +
+                        '</div>';
                 }).join('');
             } catch (e) {
                 console.error('Activity feed failed:', e);
@@ -707,9 +688,17 @@
         // ── Load map pins ─────────────────────────────────────────
         async function loadMapPins() {
             try {
-                const json = await Api.get('/api/reports/map');
-                if (!json?.success) return;
-                json.data.forEach(addMapPin);
+                var json = await Api.get('/api/admin/citizen-reports/map');
+                if (!json || !json.success) return;
+                json.data.forEach(function(p) {
+                    addMapPin({
+                        lat: p.lat,
+                        lng: p.lng,
+                        title: p.concern || p.issue || 'Report',
+                        status: normStatus(p.status),
+                        barangay: p.barangay
+                    });
+                });
             } catch (e) {
                 console.error('Map pins failed:', e);
             }
@@ -718,10 +707,10 @@
         // ── Notification badge in quick actions ───────────────────
         async function updateNotifBadge() {
             try {
-                const json = await Api.get('/api/notifications/unread-count');
-                if (!json?.success) return;
-                const el = document.querySelector('.qa-notif .quick-action-icon span[style*="position:absolute"]');
-                if (el) el.textContent = json.data.unread_count > 0 ? json.data.unread_count : '';
+                var json = await Api.get('/api/notifications/unread-count');
+                if (!json || !json.success) return;
+                var badge = document.getElementById('notifQuickBadge');
+                if (badge) badge.textContent = (json.data.unread_count > 0) ? json.data.unread_count : '';
             } catch (_) {}
         }
 
@@ -731,6 +720,14 @@
         loadActivity();
         loadMapPins();
         updateNotifBadge();
+
+        // ── Auto-refresh every 30s ────────────────────────────────
+        setInterval(function() {
+            loadStats();
+            loadRecentReports();
+            loadActivity();
+            loadMapPins();
+        }, 30000);
     </script>
 </body>
 

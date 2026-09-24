@@ -100,6 +100,16 @@ class CitizenReport extends Model
      */
     public function transitionTo(string $newStatus, ?string $description = null, ?string $officeName = null): void
     {
+        // ── Idempotency guard ───────────────────────────────────────────────
+        // Skip creating a duplicate activity if the report is already in this
+        // exact status. Only bypass the guard for STATUS_PENDING_VALIDATION
+        // when called from validate() so an explicit re-validation is allowed,
+        // but never create a second activity row for the same transition.
+        if ($this->status === $newStatus) {
+            // Status hasn't changed — nothing to log, nothing to notify.
+            return;
+        }
+
         $this->update(['status' => $newStatus]);
 
         if ($newStatus === self::STATUS_RESOLVED) {
@@ -179,6 +189,12 @@ class CitizenReport extends Model
             'province'        => $this->province,
             'landmark'        => $this->landmark,
             'activityLog'     => $this->activities->map(fn($a) => $a->toApiArray())->values()->toArray(),
+            // ── Citizen (reporter) info for admin panels ───────────────
+            'citizen'         => $this->citizen ? [
+                'fullName'    => $this->citizen->full_name,
+                'phoneNumber' => $this->citizen->phone,
+                'barangay'    => $this->citizen->barangay,
+            ] : null,
         ];
     }
 }

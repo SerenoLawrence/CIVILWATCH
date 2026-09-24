@@ -1,315 +1,419 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <script>
-  (function(){
-    var role = localStorage.getItem('cw_role');
-    if (!role) { window.location.replace('index.html'); }
-    else if (role !== 'super_admin') {
-      window.location.replace(role === 'ceo' ? 'offices/ceo/dashboard.html' : 'offices/cenro/dashboard.html');
-    }
-  })();
+    (function() {
+        var role = localStorage.getItem('cw_role');
+        if (!role) {
+            window.location.replace('index.html');
+        } else if (role !== 'super_admin') {
+            window.location.replace(role === 'ceo' ? 'offices/ceo/dashboard.html' : 'offices/cenro/dashboard.html');
+        }
+    })();
 </script>
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GIS Map — CIVILWATCH Admin</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-  <link rel="stylesheet" href="/css/variables.css" />
-  <link rel="stylesheet" href="/css/global.css" />
-  <link rel="stylesheet" href="/css/layout.css" />
-  <link rel="stylesheet" href="/css/sidebar.css" />
-  <link rel="stylesheet" href="/css/navbar.css" />
-  <link rel="stylesheet" href="/css/cards.css" />
-  <link rel="stylesheet" href="/css/buttons.css" />
-  <link rel="stylesheet" href="/css/tables.css" />
-  <link rel="stylesheet" href="/css/badges.css" />
-  <link rel="stylesheet" href="/css/map.css" />
-  <link rel="stylesheet" href="/css/responsive.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>
-    #gis-map { height: 460px; }
-    .gis-top { margin-bottom: 14px; }
-    .detail-panel-placeholder {
-      background: var(--gray-50);
-      border: 1px dashed var(--gray-300);
-      border-radius: var(--radius-lg);
-      padding: 40px 20px;
-      text-align: center;
-      color: var(--gray-400);
-    }
-    .detail-panel-placeholder .material-symbols-outlined { font-size: 40px; display:block; margin-bottom:10px; }
-    .detail-panel-placeholder p { font-size:13px; }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GIS Map â€” CIVILWATCH Admin</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/css/variables.css" />
+    <link rel="stylesheet" href="/css/global.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/sidebar.css" />
+    <link rel="stylesheet" href="/css/navbar.css" />
+    <link rel="stylesheet" href="/css/cards.css" />
+    <link rel="stylesheet" href="/css/buttons.css" />
+    <link rel="stylesheet" href="/css/tables.css" />
+    <link rel="stylesheet" href="/css/badges.css" />
+    <link rel="stylesheet" href="/css/map.css" />
+    <link rel="stylesheet" href="/css/responsive.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #gis-map {
+            height: 460px;
+        }
+
+        .gis-top {
+            margin-bottom: 14px;
+        }
+
+        .detail-panel-placeholder {
+            background: var(--gray-50);
+            border: 1px dashed var(--gray-300);
+            border-radius: var(--radius-lg);
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--gray-400);
+        }
+
+        .detail-panel-placeholder .material-symbols-outlined {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .detail-panel-placeholder p {
+            font-size: 13px;
+        }
+    </style>
 </head>
+
 <body data-page="gis-map">
-<div class="app-wrapper">
-  <aside class="sidebar" id="sidebar"></aside>
-  <div class="main-area" id="mainArea">
-    <nav class="navbar" id="navbar"></nav>
-    <main class="page-content">
+    <div class="app-wrapper">
+        <aside class="sidebar" id="sidebar"></aside>
+        <div class="main-area" id="mainArea">
+            <nav class="navbar" id="navbar"></nav>
+            <main class="page-content">
 
-      <div class="page-header">
-        <h1 class="page-title">GIS Map</h1>
-        <p class="page-subtitle">View and monitor reports on the map.</p>
-      </div>
+                <div class="page-header">
+                    <h1 class="page-title">GIS Map</h1>
+                    <p class="page-subtitle">View and monitor reports on the map.</p>
+                </div>
 
-      <!-- Filter chips -->
-      <div class="gis-top">
-        <div class="filter-chips" id="filterChips">
-          <button class="chip active" data-filter="all" onclick="setFilter(this,'all')">
-            All
-          </button>
-          <button class="chip" data-filter="Infrastructure" onclick="setFilter(this,'Infrastructure')">
-            <span class="material-symbols-outlined">construction</span> Infrastructure
-          </button>
-          <button class="chip" data-filter="Environmental" onclick="setFilter(this,'Environmental')">
-            <span class="material-symbols-outlined">eco</span> Environmental
-          </button>
-          <button class="chip" data-filter="Pending Validation" onclick="setFilter(this,'Pending Validation')">
-            <span class="chip-dot" style="background:#F59E0B"></span> Pending Validation
-          </button>
-          <button class="chip" data-filter="Assigned" onclick="setFilter(this,'Assigned')">
-            <span class="chip-dot" style="background:#1A56DB"></span> Assigned
-          </button>
-          <button class="chip" data-filter="In Progress" onclick="setFilter(this,'In Progress')">
-            <span class="chip-dot" style="background:#F97316"></span> In Progress
-          </button>
-          <button class="chip" data-filter="Resolved" onclick="setFilter(this,'Resolved')">
-            <span class="chip-dot" style="background:#10B981"></span> Resolved
-          </button>
+                <!-- Filter chips -->
+                <div class="gis-top">
+                    <div class="filter-chips" id="filterChips">
+                        <button class="chip active" data-filter="all" onclick="setFilter(this,'all')">
+                            All
+                        </button>
+                        <button class="chip" data-filter="Infrastructure" onclick="setFilter(this,'Infrastructure')">
+                            <span class="material-symbols-outlined">construction</span> Infrastructure
+                        </button>
+                        <button class="chip" data-filter="Environmental" onclick="setFilter(this,'Environmental')">
+                            <span class="material-symbols-outlined">eco</span> Environmental
+                        </button>
+                        <button class="chip" data-filter="Pending Validation" onclick="setFilter(this,'Pending Validation')">
+                            <span class="chip-dot" style="background:#F59E0B"></span> Pending Validation
+                        </button>
+                        <button class="chip" data-filter="Assigned" onclick="setFilter(this,'Assigned')">
+                            <span class="chip-dot" style="background:#1A56DB"></span> Assigned
+                        </button>
+                        <button class="chip" data-filter="In Progress" onclick="setFilter(this,'In Progress')">
+                            <span class="chip-dot" style="background:#F97316"></span> In Progress
+                        </button>
+                        <button class="chip" data-filter="Resolved" onclick="setFilter(this,'Resolved')">
+                            <span class="chip-dot" style="background:#10B981"></span> Resolved
+                        </button>
+                    </div>
+                </div>
+
+                <div class="gis-layout">
+                    <!-- Left: Map + Table -->
+                    <div class="map-section">
+                        <div class="map-container">
+                            <div id="gis-map"></div>
+                            <div class="map-legend">
+                                <div class="map-legend-title">Legend</div>
+                                <div class="legend-row">
+                                    <div class="legend-pin pending"></div> Pending Validation
+                                </div>
+                                <div class="legend-row">
+                                    <div class="legend-pin assigned"></div> Assigned
+                                </div>
+                                <div class="legend-row">
+                                    <div class="legend-pin inprogress"></div> In Progress
+                                </div>
+                                <div class="legend-row">
+                                    <div class="legend-pin resolved"></div> Resolved
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="card">
+                            <div class="card-padded" style="padding-bottom:0;">
+                                <div class="card-title">Reports on Map (Latest)</div>
+                            </div>
+                            <div class="table-container" style="border:none; margin-top:10px;">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>ISSUE</th>
+                                            <th>BARANGAY</th>
+                                            <th>STATUS</th>
+                                            <th>ASSIGNED OFFICE</th>
+                                            <th>SUBMITTED</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gisTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Detail panel -->
+                    <div>
+                        <div class="map-detail-panel" id="detailPanel">
+                            <div class="map-detail-header">
+                                <span class="map-detail-title">Report Details</span>
+                                <button class="map-detail-close" onclick="clearDetail()">
+                                    <span class="material-symbols-outlined">close</span>
+                                </button>
+                            </div>
+                            <div id="detailContent">
+                                <div class="detail-panel-placeholder">
+                                    <span class="material-symbols-outlined">location_on</span>
+                                    <p>Click a pin on the map to view report details.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
         </div>
-      </div>
-
-      <div class="gis-layout">
-        <!-- Left: Map + Table -->
-        <div class="map-section">
-          <div class="map-container">
-            <div id="gis-map"></div>
-            <div class="map-legend">
-              <div class="map-legend-title">Legend</div>
-              <div class="legend-row"><div class="legend-pin pending"></div> Pending Validation</div>
-              <div class="legend-row"><div class="legend-pin assigned"></div> Assigned</div>
-              <div class="legend-row"><div class="legend-pin inprogress"></div> In Progress</div>
-              <div class="legend-row"><div class="legend-pin resolved"></div> Resolved</div>
-            </div>
-          </div>
-
-          <!-- Table -->
-          <div class="card">
-            <div class="card-padded" style="padding-bottom:0;">
-              <div class="card-title">Reports on Map (Latest)</div>
-            </div>
-            <div class="table-container" style="border:none; margin-top:10px;">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>ISSUE</th>
-                    <th>BARANGAY</th>
-                    <th>STATUS</th>
-                    <th>ASSIGNED OFFICE</th>
-                    <th>SUBMITTED</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="gisTableBody"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: Detail panel -->
-        <div>
-          <div class="map-detail-panel" id="detailPanel">
-            <div class="map-detail-header">
-              <span class="map-detail-title">Report Details</span>
-              <button class="map-detail-close" onclick="clearDetail()">
-                <span class="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <div id="detailContent">
-              <div class="detail-panel-placeholder">
-                <span class="material-symbols-outlined">location_on</span>
-                <p>Click a pin on the map to view report details.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </main>
-  </div>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="/js/utils.js"></script>
-<script src="/js/app.js"></script>
-<script>
-const gisReports = [
-  { id:'CW-2026-021', issue:'Damaged Road',        cat:'Infrastructure', barangay:'Aplaya',    status:'In Progress',        office:'City Engineering Office', date:'May 21, 2026', time:'10:30 AM', lat:6.7500, lng:125.3540, desc:'Deep potholes along the road causing difficulty for vehicles.' },
-  { id:'CW-2026-020', issue:'Illegal Dumping',     cat:'Environmental',  barangay:'Carmen',    status:'Assigned',           office:'CENRO',                   date:'May 21, 2026', time:'09:15 AM', lat:6.7420, lng:125.3480, desc:'Garbage is illegally dumped near the river side.' },
-  { id:'CW-2026-019', issue:'Blocked Drainage',    cat:'Infrastructure', barangay:'Magsaysay', status:'Pending Validation', office:'—',                       date:'May 21, 2026', time:'08:45 AM', lat:6.7480, lng:125.3520, desc:'Drainage is clogged causing water to overflow.' },
-  { id:'CW-2026-018', issue:'Broken Streetlight',  cat:'Infrastructure', barangay:'Zone II',   status:'Resolved',           office:'City Engineering Office', date:'May 20, 2026', time:'07:20 PM', lat:6.7560, lng:125.3600, desc:'Streetlight is not working at night.' },
-  { id:'CW-2026-217', issue:'Overgrown Vegetation',cat:'Environmental',  barangay:'Badiang',   status:'Assigned',           office:'CENRO',                   date:'May 20, 2026', time:'11:05 AM', lat:6.7610, lng:125.3680, desc:'Vegetation is overgrown and blocking the pathway.' },
-  { id:'CW-2026-216', issue:'Damaged Sidewalk',    cat:'Infrastructure', barangay:'Zone III',  status:'In Progress',        office:'City Engineering Office', date:'May 19, 2026', time:'04:45 PM', lat:6.7530, lng:125.3570, desc:'Sidewalk is cracked and unsafe for pedestrians.' },
-  { id:'CW-2026-215', issue:'Soil Erosion',        cat:'Environmental',  barangay:'Magsaysay', status:'Resolved',           office:'CENRO',                   date:'May 18, 2026', time:'02:10 PM', lat:6.7450, lng:125.3500, desc:'Soil erosion observed along the hillside.' },
-  { id:'CW-2026-214', issue:'Road Sign Damage',    cat:'Infrastructure', barangay:'Aplaya',    status:'Assigned',           office:'City Engineering Office', date:'May 18, 2026', time:'09:00 AM', lat:6.7495, lng:125.3555, desc:'Road sign is damaged and missing.' },
-];
-
-const pinColors = {
-  'Pending Validation': '#F59E0B',
-  'Assigned':           '#1A56DB',
-  'In Progress':        '#F97316',
-  'Resolved':           '#10B981',
-};
-
-const pinIcons = {
-  'Infrastructure': '🔧',
-  'Environmental':  '🌿',
-};
-
-// Map
-const map = L.map('gis-map', { zoomControl: true }).setView([6.7490, 125.3570], 13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors', maxZoom: 19
-}).addTo(map);
-
-let markers = [];
-let activeFilter = 'all';
-
-function createMarker(r) {
-  const color = pinColors[r.status] || '#9CA3AF';
-  const icon = L.divIcon({
-    className: '',
-    html: `
-      <div style="
-        width:34px;height:34px;
-        border-radius:50% 50% 50% 0;
-        transform:rotate(-45deg);
-        background:${color};
-        border:3px solid white;
-        box-shadow:0 3px 10px rgba(0,0,0,0.25);
-        display:flex;align-items:center;justify-content:center;
-      ">
-        <span style="transform:rotate(45deg);font-size:13px;">${r.cat === 'Infrastructure' ? '🔧' : '🌿'}</span>
-      </div>`,
-    iconSize: [34,34], iconAnchor: [17,34], popupAnchor: [0,-34]
-  });
-  const marker = L.marker([r.lat, r.lng], { icon }).addTo(map);
-  marker.on('click', () => showDetail(r));
-  marker.bindPopup(`
-    <div class="map-popup">
-      <div class="map-popup-issue">${r.issue}</div>
-      <div class="map-popup-row">
-        <span class="map-popup-key">Status</span>
-        <span class="map-popup-val">${r.status}</span>
-      </div>
-      <div class="map-popup-row">
-        <span class="map-popup-key">Barangay</span>
-        <span class="map-popup-val">${r.barangay}</span>
-      </div>
     </div>
-  `);
-  return marker;
-}
 
-function renderMarkers(filter) {
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
-  gisReports.forEach(r => {
-    if (filter === 'all') { markers.push(createMarker(r)); return; }
-    if (r.cat === filter || r.status === filter) markers.push(createMarker(r));
-  });
-}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        // â”€â”€ Colour palette (matches status) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        var pinColors = {
+            'Submitted': '#9CA3AF',
+            'Pending Validation': '#F59E0B',
+            'Assigned to Office': '#1A56DB',
+            'In Progress': '#F97316',
+            'Resolved': '#10B981',
+        };
 
-function setFilter(btn, filter) {
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
-  activeFilter = filter;
-  renderMarkers(filter);
-  renderTable(filter);
-}
+        // â”€â”€ Map init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        var map = L.map('gis-map', {
+            zoomControl: true
+        }).setView([6.7490, 125.3570], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
 
-function renderTable(filter) {
-  const data = filter === 'all' ? gisReports : gisReports.filter(r => r.cat === filter || r.status === filter);
-  document.getElementById('gisTableBody').innerHTML = data.map(r => `
-    <tr style="cursor:pointer;" onclick="showDetail(gisReports.find(x=>x.id==='${r.id}'))">
-      <td><span class="ref-id">${r.id}</span></td>
-      <td>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <img class="table-photo" src="${getPhotoUrl(r.issue)}" alt="${r.issue}" style="width:36px;height:30px;"
-               onerror="this.style.display='none'" />
-          <span style="font-size:13px;font-weight:600;color:var(--gray-800)">${r.issue}</span>
-        </div>
-      </td>
-      <td>${r.barangay}</td>
-      <td>${Utils.statusBadge(r.status)}</td>
-      <td style="font-size:12px;color:var(--gray-600)">${r.office}</td>
-      <td style="font-size:12px;color:var(--gray-500)">${r.date}<br><span style="color:var(--gray-400)">${r.time}</span></td>
-      <td>
-        <button class="btn-icon" onclick="event.stopPropagation();showDetail(gisReports.find(x=>x.id==='${r.id}'))">
-          <span class="material-symbols-outlined">visibility</span>
-        </button>
-      </td>
-    </tr>
-  `).join('');
-}
+        var markers = [];
+        var gisReports = []; // filled from API
+        var activeFilter = 'all';
 
-function showDetail(r) {
-  if (!r) return;
-  map.setView([r.lat, r.lng], 15);
-  document.getElementById('detailContent').innerHTML = `
-    <div class="map-detail-body">
-      <img class="map-detail-photo" src="${getPhotoUrlLarge(r.issue)}" alt="${r.issue}"
-           onerror="this.src=''" />
-      <div>${Utils.categoryBadge(r.cat)}</div>
-      <div class="map-detail-issue">${r.issue}</div>
-      <div class="map-detail-info">
-        <div class="map-detail-row">
-          <span class="map-detail-key">Barangay</span>
-          <span class="map-detail-val">${r.barangay}</span>
-        </div>
-        <div class="map-detail-row">
-          <span class="map-detail-key">Status</span>
-          <span class="map-detail-val">${Utils.statusBadge(r.status)}</span>
-        </div>
-        <div class="map-detail-row">
-          <span class="map-detail-key">Assigned Office</span>
-          <span class="map-detail-val">${r.office}</span>
-        </div>
-        <div class="map-detail-row">
-          <span class="map-detail-key">Submitted</span>
-          <span class="map-detail-val">${r.date} • ${r.time}</span>
-        </div>
-        <div class="map-detail-row">
-          <span class="map-detail-key">Report ID</span>
-          <span class="map-detail-val"><span class="ref-id">${r.id}</span></span>
-        </div>
-      </div>
-      <div style="margin-top:12px;">
-        <div style="font-size:12px;font-weight:600;color:var(--gray-500);margin-bottom:4px;">Description</div>
-        <div class="map-detail-desc">${r.desc}</div>
-      </div>
-    </div>
-    <div class="map-detail-footer">
-      <a href="report-details.html?id=${r.id}" class="btn btn-primary btn-full">
-        View Full Report <span class="material-symbols-outlined">arrow_forward</span>
-      </a>
-    </div>
-  `;
-}
+        // â”€â”€ Circle marker (user-friendly, no drift on zoom) â”€â”€â”€â”€â”€â”€â”€
+        function createMarker(r) {
+            var color = pinColors[r.status] || '#9CA3AF';
+            var concern = r.concern || r.issue || 'â€”';
+            var cat = r.category || r.cat || '';
+            var isInfra = cat.toLowerCase().includes('infra');
+            var emoji = isInfra ? 'ðŸ”§' : (cat.toLowerCase().includes('others') ? 'ðŸ“‹' : 'ðŸŒ¿');
+            var ref = r.referenceNumber || r.reference_number || String(r.id);
+            var barangay = r.barangay || 'â€”';
+            var office = r.assignedOffice ?
+                (typeof r.assignedOffice === 'object' ? r.assignedOffice.name : r.assignedOffice) :
+                'â€”';
 
-function clearDetail() {
-  document.getElementById('detailContent').innerHTML = `
-    <div class="detail-panel-placeholder">
-      <span class="material-symbols-outlined">location_on</span>
-      <p>Click a pin on the map to view report details.</p>
-    </div>
-  `;
-}
+            // Circle marker â€” no rotation, no drift, universally readable
+            var icon = L.divIcon({
+                className: '',
+                html: '<div style="' +
+                    'width:36px;height:36px;border-radius:50%;' +
+                    'background:' + color + ';' +
+                    'border:3px solid white;' +
+                    'box-shadow:0 2px 8px rgba(0,0,0,0.30);' +
+                    'display:flex;align-items:center;justify-content:center;' +
+                    'font-size:15px;' +
+                    '">' + emoji + '</div>',
+                iconSize: [36, 36],
+                iconAnchor: [18, 18], // center of circle sits on coordinate
+                popupAnchor: [0, -20]
+            });
 
-renderMarkers('all');
-renderTable('all');
-</script>
+            var lat = parseFloat(r.latitude || r.lat) || 0;
+            var lng = parseFloat(r.longitude || r.lng) || 0;
+            if (!lat || !lng) return null;
+
+            var marker = L.marker([lat, lng], {
+                icon: icon
+            }).addTo(map);
+            marker.on('click', function() {
+                showDetail(r);
+            });
+            marker.bindTooltip(concern, {
+                permanent: false,
+                direction: 'top',
+                offset: [0, -20]
+            });
+            return marker;
+        }
+
+        // â”€â”€ Render markers on map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        function renderMarkers(filter) {
+            markers.forEach(function(m) {
+                if (m) map.removeLayer(m);
+            });
+            markers = [];
+            gisReports.forEach(function(r) {
+                var cat = (r.category || r.cat || '').toLowerCase();
+                var status = r.status || '';
+                var pass = filter === 'all' ||
+                    (filter === 'Infrastructure' && cat.includes('infra')) ||
+                    (filter === 'Environmental' && (cat.includes('environ') || cat === 'environment')) ||
+                    status === filter;
+                if (!pass) return;
+                var m = createMarker(r);
+                if (m) markers.push(m);
+            });
+        }
+
+        // â”€â”€ Filter chip handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        function setFilter(btn, filter) {
+            document.querySelectorAll('.chip').forEach(function(c) {
+                c.classList.remove('active');
+            });
+            btn.classList.add('active');
+            activeFilter = filter;
+            renderMarkers(filter);
+            renderTable(filter);
+        }
+
+        // â”€â”€ Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        function fmtDate(str) {
+            if (!str) return 'â€”';
+            var d = new Date(str);
+            if (isNaN(d)) return str;
+            return d.toLocaleDateString('en-PH', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                }) +
+                '<br><span style="color:var(--gray-400)">' +
+                d.toLocaleTimeString('en-PH', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) +
+                '</span>';
+        }
+
+        function renderTable(filter) {
+            var data = gisReports.filter(function(r) {
+                if (filter === 'all') return true;
+                var cat = (r.category || r.cat || '').toLowerCase();
+                var status = r.status || '';
+                return (filter === 'Infrastructure' && cat.includes('infra')) ||
+                    (filter === 'Environmental' && (cat.includes('environ') || cat === 'environment')) ||
+                    status === filter;
+            });
+
+            var tbody = document.getElementById('gisTableBody');
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray-400);">' +
+                    '<span class="material-symbols-outlined" style="display:block;font-size:32px;margin-bottom:8px">location_off</span>' +
+                    'No reports with location data.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(function(r) {
+                var ref = r.referenceNumber || r.reference_number || String(r.id);
+                var concern = r.concern || r.issue || 'â€”';
+                var cat = r.category || r.cat || '';
+                var office = r.assignedOffice ?
+                    (typeof r.assignedOffice === 'object' ? r.assignedOffice.name : r.assignedOffice) :
+                    'â€”';
+                var photo = r.imageUrl || r.photo_url || null;
+                var imgHtml = photo ?
+                    '<img style="width:36px;height:30px;object-fit:cover;border-radius:4px;" src="' + photo + '" onerror="this.style.display=\'none\'" />' :
+                    '<span class="material-symbols-outlined" style="font-size:20px;color:var(--gray-300)">image</span>';
+                var safeRef = String(r.id);
+
+                return '<tr style="cursor:pointer" onclick="showDetailById(\'' + safeRef + '\')">' +
+                    '<td><span class="ref-id">' + ref + '</span></td>' +
+                    '<td><div style="display:flex;align-items:center;gap:8px;">' +
+                    imgHtml +
+                    '<span style="font-size:13px;font-weight:600;color:var(--gray-800)">' + concern + '</span>' +
+                    '</div></td>' +
+                    '<td>' + (r.barangay || 'â€”') + '</td>' +
+                    '<td>' + Utils.statusBadge(r.status) + '</td>' +
+                    '<td style="font-size:12px;color:var(--gray-600)">' + office + '</td>' +
+                    '<td style="font-size:12px">' + fmtDate(r.submittedAt || r.created_at) + '</td>' +
+                    '<td><button class="btn-icon" onclick="event.stopPropagation();showDetailById(\'' + safeRef + '\')">' +
+                    '<span class="material-symbols-outlined">visibility</span>' +
+                    '</button></td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        // â”€â”€ Detail panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        function showDetailById(id) {
+            var r = gisReports.find(function(x) {
+                return String(x.id) === String(id);
+            });
+            if (r) showDetail(r);
+        }
+
+        function showDetail(r) {
+            if (!r) return;
+            var lat = parseFloat(r.latitude || r.lat) || 0;
+            var lng = parseFloat(r.longitude || r.lng) || 0;
+            var concern = r.concern || r.issue || 'â€”';
+            var cat = r.category || r.cat || '';
+            var ref = r.referenceNumber || r.reference_number || String(r.id);
+            var office = r.assignedOffice ?
+                (typeof r.assignedOffice === 'object' ? r.assignedOffice.name : r.assignedOffice) :
+                'â€”';
+            var photo = r.imageUrl || r.photo_url || null;
+
+            if (lat && lng) map.setView([lat, lng], 15);
+
+            var imgHtml = photo ?
+                '<img class="map-detail-photo" src="' + photo + '" alt="' + concern + '" onerror="this.style.display=\'none\'" />' :
+                '';
+
+            document.getElementById('detailContent').innerHTML =
+                '<div class="map-detail-body">' +
+                imgHtml +
+                '<div>' + Utils.categoryBadge(cat) + '</div>' +
+                '<div class="map-detail-issue">' + concern + '</div>' +
+                '<div class="map-detail-info">' +
+                '<div class="map-detail-row"><span class="map-detail-key">Barangay</span><span class="map-detail-val">' + (r.barangay || 'â€”') + '</span></div>' +
+                '<div class="map-detail-row"><span class="map-detail-key">Status</span><span class="map-detail-val">' + Utils.statusBadge(r.status) + '</span></div>' +
+                '<div class="map-detail-row"><span class="map-detail-key">Assigned Office</span><span class="map-detail-val">' + office + '</span></div>' +
+                '<div class="map-detail-row"><span class="map-detail-key">Submitted</span><span class="map-detail-val">' + fmtDate(r.submittedAt || r.created_at).replace('<br>', '&nbsp;') + '</span></div>' +
+                '<div class="map-detail-row"><span class="map-detail-key">Report ID</span><span class="map-detail-val"><span class="ref-id">' + ref + '</span></span></div>' +
+                '</div>' +
+                (r.description ? '<div style="margin-top:12px"><div style="font-size:12px;font-weight:600;color:var(--gray-500);margin-bottom:4px">Description</div><div class="map-detail-desc">' + r.description + '</div></div>' : '') +
+                '</div>' +
+                '<div class="map-detail-footer">' +
+                '<a href="report-details.html?id=' + r.id + '" class="btn btn-primary btn-full">' +
+                'View Full Report <span class="material-symbols-outlined">arrow_forward</span>' +
+                '</a>' +
+                '</div>';
+        }
+
+        function clearDetail() {
+            document.getElementById('detailContent').innerHTML =
+                '<div class="detail-panel-placeholder">' +
+                '<span class="material-symbols-outlined">location_on</span>' +
+                '<p>Click a pin on the map to view report details.</p>' +
+                '</div>';
+        }
+
+        // â”€â”€ Load from real API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        async function loadMapData() {
+            try {
+                var json = await Api.get('/api/admin/citizen-reports/map');
+                if (!json || !json.success) throw new Error('API error');
+                gisReports = (json.data || []).filter(function(r) {
+                    var lat = parseFloat(r.latitude || r.lat);
+                    var lng = parseFloat(r.longitude || r.lng);
+                    return lat && lng;
+                });
+                renderMarkers(activeFilter);
+                renderTable(activeFilter);
+            } catch (e) {
+                document.getElementById('gisTableBody').innerHTML =
+                    '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray-400);">' +
+                    '<span class="material-symbols-outlined" style="display:block;font-size:32px;margin-bottom:8px">wifi_off</span>' +
+                    'Could not load map data.</td></tr>';
+                console.error('GIS load failed:', e);
+            }
+        }
+
+        loadMapData();
+        setInterval(loadMapData, 60000); // refresh every minute
+    </script>
+
 </body>
 </html>

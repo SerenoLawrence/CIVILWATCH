@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,6 +22,7 @@ class ReportPhotoScreen extends StatefulWidget {
 
 class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
   XFile? _pickedFile;
+  Uint8List? _imageBytes;   // works on both Web and Android
   final _picker = ImagePicker();
 
   // ── Pick from camera or gallery ─────────────────────────────────────────
@@ -32,7 +35,11 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
         maxHeight: 1920,
       );
       if (file != null) {
-        setState(() => _pickedFile = file);
+        final bytes = await file.readAsBytes();
+        setState(() {
+          _pickedFile  = file;
+          _imageBytes  = bytes;
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -53,23 +60,27 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
     }
   }
 
-  void _removePhoto() => setState(() => _pickedFile = null);
+  void _removePhoto() => setState(() {
+    _pickedFile = null;
+    _imageBytes = null;
+  });
 
   // ── Fullscreen image viewer ──────────────────────────────────────────────
   void _openFullscreen() {
-    if (_pickedFile == null) return;
+    if (_imageBytes == null) return;
     showDialog(
       context: context,
       barrierColor: Colors.black.withOpacity(0.92),
-      builder: (_) => _FullscreenImageModal(file: _pickedFile!),
+      builder: (_) => _FullscreenImageModal(bytes: _imageBytes!),
     );
   }
 
   void _next() {
     Navigator.pushNamed(context, AppRoutes.reportLocation, arguments: {
       ...widget.reportData,
-      'photoFile': _pickedFile, // XFile passed forward for upload
-      'hasPhoto': _pickedFile != null,
+      'photoFile':  _pickedFile,
+      'photoBytes': _imageBytes,   // cross-platform image data
+      'hasPhoto':   _pickedFile != null,
     });
   }
 
@@ -121,9 +132,10 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
                   // ── Real photo preview OR picker options ────────────────
                   if (_pickedFile != null) ...[
                     _RealPhotoPreview(
-                      file: _pickedFile!,
+                      file:  _pickedFile!,
+                      bytes: _imageBytes,
                       onRemove: _removePhoto,
-                      onView: _openFullscreen,
+                      onView:   _openFullscreen,
                     ),
                     const SizedBox(height: 14),
                     // Allow replacing the photo
@@ -303,14 +315,43 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
 // ─────────────────────────────────────────────────────────────────────────────
 class _RealPhotoPreview extends StatelessWidget {
   final XFile file;
+  final Uint8List? bytes;
   final VoidCallback onRemove;
   final VoidCallback onView;
 
   const _RealPhotoPreview({
     required this.file,
+    required this.bytes,
     required this.onRemove,
     required this.onView,
   });
+
+  Widget _buildImage() {
+    if (bytes != null) {
+      // Works on both Web and Android
+      return Image.memory(
+        bytes!,
+        width: double.infinity,
+        height: 220,
+        fit: BoxFit.cover,
+      );
+    }
+    if (!kIsWeb) {
+      return Image.file(
+        File(file.path),
+        width: double.infinity,
+        height: 220,
+        fit: BoxFit.cover,
+      );
+    }
+    // Fallback placeholder (bytes should always be set, this is a safety net)
+    return Container(
+      width: double.infinity,
+      height: 220,
+      color: const Color(0xFF1A2A3A),
+      child: const Icon(Icons.image_rounded, color: Colors.white54, size: 48),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -321,19 +362,12 @@ class _RealPhotoPreview extends StatelessWidget {
           // ── Actual image ──────────────────────────────────────────────
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: Image.file(
-              File(file.path),
-              width: double.infinity,
-              height: 220,
-              fit: BoxFit.cover,
-            ),
+            child: _buildImage(),
           ),
 
           // ── Dark gradient overlay at bottom ───────────────────────────
           Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
+            left: 0, right: 0, bottom: 0,
             child: Container(
               height: 56,
               decoration: BoxDecoration(
@@ -353,8 +387,7 @@ class _RealPhotoPreview extends StatelessWidget {
 
           // ── "Tap to view" label ───────────────────────────────────────
           Positioned(
-            bottom: 10,
-            left: 12,
+            bottom: 10, left: 12,
             child: Row(
               children: [
                 const Icon(Icons.fullscreen_rounded,
@@ -374,13 +407,11 @@ class _RealPhotoPreview extends StatelessWidget {
 
           // ── Remove (×) button ─────────────────────────────────────────
           Positioned(
-            top: 10,
-            right: 10,
+            top: 10, right: 10,
             child: GestureDetector(
               onTap: onRemove,
               child: Container(
-                width: 32,
-                height: 32,
+                width: 32, height: 32,
                 decoration: const BoxDecoration(
                   color: Color(0xFFDC2626),
                   shape: BoxShape.circle,
@@ -399,14 +430,16 @@ class _RealPhotoPreview extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // Fullscreen image modal — shown when user taps the preview
 // ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Fullscreen image modal — shown when user taps the preview
+// ─────────────────────────────────────────────────────────────────────────────
 class _FullscreenImageModal extends StatelessWidget {
-  final XFile file;
-  const _FullscreenImageModal({required this.file});
+  final Uint8List bytes;
+  const _FullscreenImageModal({required this.bytes});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      // Tap anywhere to close
       onTap: () => Navigator.of(context).pop(),
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -417,8 +450,8 @@ class _FullscreenImageModal extends StatelessWidget {
               child: InteractiveViewer(
                 minScale: 0.8,
                 maxScale: 4.0,
-                child: Image.file(
-                  File(file.path),
+                child: Image.memory(
+                  bytes,
                   fit: BoxFit.contain,
                 ),
               ),

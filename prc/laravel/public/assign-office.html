@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <script>
     (function() {
@@ -17,7 +17,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Assign Office — CIVILWATCH Admin</title>
+    <title>Assign Office â€” CIVILWATCH Admin</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="/css/variables.css" />
     <link rel="stylesheet" href="/css/global.css" />
@@ -937,7 +937,7 @@
             }
         }
 
-        /* ── Assign Form View ─────────────────────── */
+        /* â”€â”€ Assign Form View â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .back-link {
             display: inline-flex;
             align-items: center;
@@ -1363,7 +1363,7 @@
                             <span class="material-symbols-outlined">pending_actions</span>
                         </div>
                         <div>
-                            <div class="ao-stat-num" id="statTotal">—</div>
+                            <div class="ao-stat-num" id="statTotal">â€”</div>
                             <div class="ao-stat-label">Waiting for Assignment</div>
                         </div>
                     </div>
@@ -1372,7 +1372,7 @@
                             <span class="material-symbols-outlined">construction</span>
                         </div>
                         <div>
-                            <div class="ao-stat-num" id="statInfra">—</div>
+                            <div class="ao-stat-num" id="statInfra">â€”</div>
                             <div class="ao-stat-label">Infrastructure</div>
                         </div>
                     </div>
@@ -1381,7 +1381,7 @@
                             <span class="material-symbols-outlined">eco</span>
                         </div>
                         <div>
-                            <div class="ao-stat-num" id="statEnv">—</div>
+                            <div class="ao-stat-num" id="statEnv">â€”</div>
                             <div class="ao-stat-label">Environmental</div>
                         </div>
                     </div>
@@ -1399,8 +1399,8 @@
                             </div>
                             <select class="ao-select" id="filterCat" onchange="applyFilters()">
                                 <option value="">All Category</option>
-                                <option value="infrastructure">Infrastructure</option>
-                                <option value="environmental">Environmental</option>
+                                <option value="Infrastructure">Infrastructure</option>
+                                <option value="Environmental">Environmental</option>
                             </select>
                             <select class="ao-select" id="filterBarangay" onchange="applyFilters()">
                                 <option value="">All Barangay</option>
@@ -1493,7 +1493,7 @@
 
                 </div><!-- end ao-layout -->
 
-                <!-- ── Full-page Assign Form (hidden until Assign Office clicked) ── -->
+                <!-- â”€â”€ Full-page Assign Form (hidden until Assign Office clicked) â”€â”€ -->
                 <div id="assignFormView" style="display:none;">
 
                     <a href="#" class="back-link" onclick="closeAssignForm(); return false;">
@@ -1512,27 +1512,27 @@
                         <div class="af-summary-fields">
                             <div class="af-field">
                                 <div class="af-field-label"><span class="material-symbols-outlined">tag</span>Report ID</div>
-                                <div class="af-field-value primary-text" id="afRef">—</div>
+                                <div class="af-field-value primary-text" id="afRef">â€”</div>
                             </div>
                             <div class="af-field">
                                 <div class="af-field-label"><span class="material-symbols-outlined">warning</span>Issue</div>
-                                <div class="af-field-value" id="afIssue">—</div>
+                                <div class="af-field-value" id="afIssue">â€”</div>
                             </div>
                             <div class="af-field">
                                 <div class="af-field-label"><span class="material-symbols-outlined">category</span>Category</div>
-                                <div class="af-field-value" id="afCategory">—</div>
+                                <div class="af-field-value" id="afCategory">â€”</div>
                             </div>
                             <div class="af-field">
                                 <div class="af-field-label"><span class="material-symbols-outlined">location_on</span>Barangay</div>
-                                <div class="af-field-value" id="afBarangay">—</div>
+                                <div class="af-field-value" id="afBarangay">â€”</div>
                             </div>
                             <div class="af-field">
                                 <div class="af-field-label"><span class="material-symbols-outlined">calendar_today</span>Date Submitted</div>
-                                <div class="af-field-value" id="afDate">—</div>
+                                <div class="af-field-value" id="afDate">â€”</div>
                             </div>
                             <div class="af-field">
                                 <div class="af-field-label"><span class="material-symbols-outlined">person</span>Submitted By</div>
-                                <div class="af-field-value" id="afSubmittedBy">—</div>
+                                <div class="af-field-value" id="afSubmittedBy">â€”</div>
                             </div>
                         </div>
                     </div>
@@ -1659,10 +1659,10 @@
         </div>
     </div>
 
-    <!-- ── Shared overlay ─────────────────────────────── -->
+    <!-- â”€â”€ Shared overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="ao-overlay" id="modalOverlay" onclick="closeAllModals()"></div>
 
-    <!-- ── View Report Modal ────────────────────────── -->
+    <!-- â”€â”€ View Report Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="ao-modal view-modal" id="viewModal">
         <div class="ao-mheader">
             <div class="ao-mtitle">
@@ -1687,7 +1687,7 @@
         </div>
     </div>
 
-    <!-- ── Assign Office Modal ───────────────────────── -->
+    <!-- â”€â”€ Assign Office Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="ao-modal assign-modal" id="assignModal">
         <div class="ao-mheader">
             <div class="ao-mtitle">
@@ -1704,15 +1704,15 @@
                 <div>
                     <p style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px;">Report Summary</p>
                     <div class="am-summ">
-                        <div class="am-ref" id="amRef">—</div>
-                        <div class="am-title" id="amTitle">—</div>
+                        <div class="am-ref" id="amRef">â€”</div>
+                        <div class="am-title" id="amTitle">â€”</div>
                         <div class="am-loc">
                             <span class="material-symbols-outlined" style="font-size:13px;">location_on</span>
-                            <span id="amLoc">—</span>
+                            <span id="amLoc">â€”</span>
                         </div>
                         <div style="margin-top:10px;">
                             <div style="font-size:11px;color:var(--gray-400);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Category</div>
-                            <div id="amCat">—</div>
+                            <div id="amCat">â€”</div>
                         </div>
                     </div>
 
@@ -1777,7 +1777,7 @@
         </div>
     </div>
 
-    <!-- ── Success overlay + modal ───────────────────── -->
+    <!-- â”€â”€ Success overlay + modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="ao-overlay" id="successOverlay" onclick="closeSuccess()"></div>
     <div class="ao-modal success-modal" id="successModal">
         <div style="width:60px;height:60px;border-radius:50%;background:var(--status-resolved-bg);
@@ -1786,7 +1786,7 @@
         </div>
         <div style="font-size:20px;font-weight:700;color:var(--gray-900);margin-bottom:8px;">Report Assigned!</div>
         <div style="font-size:14px;color:var(--gray-500);margin-bottom:24px;">
-            Successfully assigned to <strong id="successOfficeName">—</strong>.<br>
+            Successfully assigned to <strong id="successOfficeName">â€”</strong>.<br>
             The office has been notified.
         </div>
         <div style="display:flex;gap:10px;justify-content:center;">
@@ -1798,7 +1798,7 @@
     <script src="/js/utils.js"></script>
     <script src="/js/app.js"></script>
     <script>
-        // ── State ──────────────────────────────────────────────
+        // â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         var allReports = [];
         var filtered = [];
         var currentPage = 1;
@@ -1813,11 +1813,24 @@
             'Soong', 'Tiguman', 'Tres De Mayo', 'Zone I', 'Zone II', 'Zone III'
         ];
 
-        // ── Boot ───────────────────────────────────────────────
+        // â”€â”€ Boot â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         document.addEventListener('DOMContentLoaded', function() {
             populateBarangays();
             loadStats();
             loadReports();
+
+            // If navigated from report-details.html with ?id=, auto-open assign form for that report
+            var id = Utils.getParam('id');
+            if (id) {
+                setTimeout(function() {
+                    var report = allReports.find(function(r) {
+                        return String(r.id) === id;
+                    });
+                    if (report) {
+                        openAssign(report.id);
+                    }
+                }, 500); // Wait for loadReports to complete
+            }
         });
 
         function populateBarangays() {
@@ -1830,47 +1843,115 @@
             });
         }
 
-        // ── Stats ──────────────────────────────────────────────
+        // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        function fmtDate(str) {
+            if (!str) return 'â€”';
+            var d = new Date(str);
+            if (isNaN(d)) return str;
+            return d.toLocaleDateString('en-PH', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                }) +
+                ' Â· ' + d.toLocaleTimeString('en-PH', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+        }
+
+        function normCategory(c) {
+            if (!c) return '';
+            var lc = c.toLowerCase();
+            if (lc === 'infrastructure') return 'Infrastructure';
+            if (lc === 'environment' || lc === 'environmental') return 'Environmental';
+            return c;
+        }
+
+        function recOffice(category) {
+            return normCategory(category) === 'Environment' || normCategory(category) === 'Environmental' ?
+                'CENRO' : 'CEO';
+        }
+
+        function findReport(id) {
+            return allReports.find(function(r) {
+                return r.id === id;
+            }) || null;
+        }
+
+        function citizenName(r) {
+            var c = r.citizen || {};
+            return c.fullName || c.full_name || r.submitted_by || 'â€”';
+        }
+
+        function photoPlaceholder() {
+            return '<div class="ao-thumb" style="background:var(--gray-100);display:flex;align-items:center;justify-content:center;">' +
+                '<span class="material-symbols-outlined" style="color:var(--gray-300);font-size:24px;">image</span></div>';
+        }
+
+        // â”€â”€ Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function loadStats() {
-            Api.get('/api/reports', {
-                    status: 'pending',
-                    per_page: 200
-                })
+            Api.get('/api/admin/citizen-reports/summary')
                 .then(function(json) {
                     if (!json || !json.success) return;
-                    var reports = (json.data && json.data.data) ? json.data.data : (json.data || []);
-                    document.getElementById('statTotal').textContent = reports.length;
-                    document.getElementById('statInfra').textContent =
-                        reports.filter(function(r) {
-                            return r.category === 'infrastructure';
-                        }).length;
-                    document.getElementById('statEnv').textContent =
-                        reports.filter(function(r) {
-                            return r.category === 'environmental';
-                        }).length;
+                    var d = json.data;
+                    var pending = (d.submitted || 0) + (d.pending_validation || 0);
+                    document.getElementById('statTotal').textContent = pending;
+                    document.getElementById('statInfra').textContent = 'â€”';
+                    document.getElementById('statEnv').textContent = 'â€”';
+                    // also count by category from allReports if available
+                    if (allReports.length) {
+                        document.getElementById('statInfra').textContent =
+                            allReports.filter(function(r) {
+                                return normCategory(r.category) === 'Infrastructure';
+                            }).length;
+                        document.getElementById('statEnv').textContent =
+                            allReports.filter(function(r) {
+                                var c = normCategory(r.category);
+                                return c === 'Environment' || c === 'Environmental';
+                            }).length;
+                    }
                 })
                 .catch(function() {});
         }
 
-        // ── Load reports ───────────────────────────────────────
+        // â”€â”€ Load reports â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function loadReports() {
             var list = document.getElementById('reportList');
             list.innerHTML = '<div class="ao-empty"><span class="material-symbols-outlined">pending_actions</span>Loading reports...</div>';
-            Api.get('/api/reports', {
-                    status: 'pending',
-                    per_page: 200
+            // Load Submitted + Pending Validation (reports awaiting assignment)
+            Promise.all([
+                Api.get('/api/admin/citizen-reports', {
+                    status: 'Pending Validation',
+                    limit: 200
+                }),
+                Api.get('/api/admin/citizen-reports', {
+                    status: 'Submitted',
+                    limit: 200
                 })
-                .then(function(json) {
-                    if (!json || !json.success) throw new Error('API error');
-                    allReports = (json.data && json.data.data) ? json.data.data : (json.data || []);
-                    applyFilters();
-                })
-                .catch(function() {
-                    list.innerHTML = '<div class="ao-empty"><span class="material-symbols-outlined">error</span>Unable to load reports.</div>';
+            ]).then(function(results) {
+                var seen = new Set();
+                allReports = [];
+                results.forEach(function(json) {
+                    if (!json || !json.success) return;
+                    var data = (json.data && json.data.data) ? json.data.data : (json.data || []);
+                    data.forEach(function(r) {
+                        if (!seen.has(r.id)) {
+                            seen.add(r.id);
+                            allReports.push(r);
+                        }
+                    });
                 });
+                allReports.sort(function(a, b) {
+                    return new Date(b.created_at) - new Date(a.created_at);
+                });
+                loadStats(); // refresh stat with category breakdown
+                applyFilters();
+            }).catch(function() {
+                list.innerHTML = '<div class="ao-empty"><span class="material-symbols-outlined">error</span>Unable to load reports.</div>';
+            });
         }
 
-        // ── Search + filters ───────────────────────────────────
+        // â”€â”€ Search + filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function onSearch() {
             clearTimeout(searchTimer);
             searchTimer = setTimeout(applyFilters, 280);
@@ -1878,34 +1959,27 @@
 
         function applyFilters() {
             var q = document.getElementById('searchInput').value.trim().toLowerCase();
-            var cat = document.getElementById('filterCat').value;
+            var cat = document.getElementById('filterCat').value; // 'Infrastructure' or 'Environmental' or ''
             var bgy = document.getElementById('filterBarangay').value;
             var sort = document.getElementById('filterSort').value;
 
             filtered = allReports.filter(function(r) {
-                if (cat && r.category !== cat) return false;
+                var nc = normCategory(r.category);
+                if (cat && nc !== cat) return false;
                 if (bgy && r.barangay !== bgy) return false;
                 if (q) {
-                    var haystack = [r.reference_no, r.title, r.barangay, r.submitted_by]
-                        .join(' ').toLowerCase();
-                    if (haystack.indexOf(q) === -1) return false;
+                    var ref = (r.referenceNumber || r.reference_number || '').toLowerCase();
+                    var concern = (r.concern || r.issue || '').toLowerCase();
+                    var brgy = (r.barangay || '').toLowerCase();
+                    var name = citizenName(r).toLowerCase();
+                    if (ref.indexOf(q) === -1 && concern.indexOf(q) === -1 && brgy.indexOf(q) === -1 && name.indexOf(q) === -1) return false;
                 }
                 return true;
             });
 
-            var pmap = {
-                critical: 4,
-                high: 3,
-                medium: 2,
-                low: 1
-            };
             if (sort === 'oldest') {
                 filtered.sort(function(a, b) {
                     return new Date(a.created_at) - new Date(b.created_at);
-                });
-            } else if (sort === 'high') {
-                filtered.sort(function(a, b) {
-                    return (pmap[b.priority] || 0) - (pmap[a.priority] || 0);
                 });
             } else {
                 filtered.sort(function(a, b) {
@@ -1917,7 +1991,7 @@
             renderTable();
         }
 
-        // ── Render table ───────────────────────────────────────
+        // â”€â”€ Render table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function renderTable() {
             var list = document.getElementById('reportList');
             var start = (currentPage - 1) * PER_PAGE;
@@ -1932,30 +2006,28 @@
             }
 
             var rows = page.map(function(r) {
-                var catBadge = r.category === 'infrastructure' ?
-                    '<span class="badge-infra"><span class="material-symbols-outlined">construction</span>Infrastructure</span>' :
-                    '<span class="badge-env"><span class="material-symbols-outlined">eco</span>Environmental</span>';
-
-                var photo = 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=120&h=90&fit=crop&q=70';
-                if (r.before_photo && r.before_photo.cloudinary_url) {
-                    photo = r.before_photo.cloudinary_url;
-                } else if (r.category === 'environmental') {
-                    photo = 'https://images.unsplash.com/photo-1621451537084-482c73073a0f?w=120&h=90&fit=crop&q=70';
-                }
-
-                var barangay = r.barangay || '—';
+                var ref = r.referenceNumber || r.reference_number || String(r.id);
+                var concern = r.concern || r.issue || 'â€”';
+                var cat = normCategory(r.category);
+                var barangay = r.barangay || 'â€”';
                 var date = fmtDate(r.created_at);
+                var photo = r.imageUrl || r.photo_url || null;
+                var status = r.status || 'â€”';
+
+                var catBadge = Utils.categoryBadge(cat);
+                var imgHtml = photo ?
+                    '<img class="ao-thumb" src="' + photo + '" alt="' + concern + '" onerror="this.parentNode.innerHTML=\'<div class=ao-thumb style=background:var(--gray-100);display:flex;align-items:center;justify-content:center><span class=material-symbols-outlined style=color:var(--gray-300)>image</span></div>\'" />' :
+                    '<div class="ao-thumb" style="background:var(--gray-100);display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:var(--gray-300);">image</span></div>';
 
                 return '<div class="ao-report-row">' +
-                    '<img class="ao-thumb" src="' + photo + '" alt="' + r.title + '" ' +
-                    'onerror="this.src=\'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=120&h=90&fit=crop&q=70\'" />' +
+                    imgHtml +
                     '<div>' +
-                    '<div class="ao-ref">' + r.reference_no + '</div>' +
-                    '<div class="ao-rtitle">' + r.title + '</div>' +
+                    '<div class="ao-ref">' + ref + '</div>' +
+                    '<div class="ao-rtitle">' + concern + '</div>' +
                     '<div class="ao-loc"><span class="material-symbols-outlined">location_on</span>' + barangay + ', Digos City</div>' +
                     '</div>' +
                     '<div>' + catBadge + '</div>' +
-                    '<div class="status-dot-cell"><div class="sdot approved"></div>Approved</div>' +
+                    '<div>' + Utils.statusBadge(status) + '</div>' +
                     '<div class="ao-date">' + date + '</div>' +
                     '<div class="ao-actions">' +
                     '<button class="btn-view" onclick="openView(' + r.id + ')">View Report</button>' +
@@ -1966,21 +2038,16 @@
 
             list.innerHTML = rows.join('');
 
-            // Pagination info
             document.getElementById('pgInfo').textContent =
-                'Showing ' + (start + 1) + ' to ' + Math.min(start + PER_PAGE, total) +
-                ' of ' + total + ' report' + (total !== 1 ? 's' : '');
+                'Showing ' + (start + 1) + ' to ' + Math.min(start + PER_PAGE, total) + ' of ' + total + ' report' + (total !== 1 ? 's' : '');
 
-            // Pagination buttons
             var pages = Math.ceil(total / PER_PAGE);
-            var html = '<button class="pg-btn" onclick="goPage(' + (currentPage - 1) + ')"' +
-                (currentPage === 1 ? ' disabled' : '') + '>' +
+            var html = '<button class="pg-btn" onclick="goPage(' + (currentPage - 1) + ')"' + (currentPage === 1 ? ' disabled' : '') + '>' +
                 '<span class="material-symbols-outlined">chevron_left</span></button>';
             for (var i = 1; i <= pages; i++) {
                 html += '<button class="pg-btn' + (i === currentPage ? ' active' : '') + '" onclick="goPage(' + i + ')">' + i + '</button>';
             }
-            html += '<button class="pg-btn" onclick="goPage(' + (currentPage + 1) + ')"' +
-                (currentPage === pages ? ' disabled' : '') + '>' +
+            html += '<button class="pg-btn" onclick="goPage(' + (currentPage + 1) + ')"' + (currentPage === pages ? ' disabled' : '') + '>' +
                 '<span class="material-symbols-outlined">chevron_right</span></button>';
             document.getElementById('pgBtns').innerHTML = html;
         }
@@ -1995,33 +2062,7 @@
             });
         }
 
-        // ── Helpers ────────────────────────────────────────────
-        function fmtDate(str) {
-            if (!str) return '—';
-            var d = new Date(str);
-            return d.toLocaleDateString('en-PH', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                }) +
-                ' · ' + d.toLocaleTimeString('en-PH', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-        }
-
-        function recOffice(category) {
-            return category === 'environmental' ? 'CENRO' : 'CEO';
-        }
-
-        function findReport(id) {
-            for (var i = 0; i < allReports.length; i++) {
-                if (allReports[i].id === id) return allReports[i];
-            }
-            return null;
-        }
-
-        // ── View modal ─────────────────────────────────────────
+        // â”€â”€ View modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function openView(id) {
             activeReport = findReport(id);
             document.getElementById('modalOverlay').classList.add('open');
@@ -2030,54 +2071,51 @@
             var content = document.getElementById('viewContent');
             content.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray-400);">Loading...</div>';
 
-            Api.get('/api/reports/' + id)
+            Api.get('/api/admin/citizen-reports/' + id)
                 .then(function(json) {
                     if (!json || !json.success) throw new Error();
                     var r = json.data;
                     activeReport = r;
 
-                    var catBadge = r.category === 'infrastructure' ?
-                        '<span class="badge-infra"><span class="material-symbols-outlined">construction</span>Infrastructure</span>' :
-                        '<span class="badge-env"><span class="material-symbols-outlined">eco</span>Environmental</span>';
+                    var cat = normCategory(r.category);
+                    var concern = r.concern || r.issue || 'â€”';
+                    var citizen = r.citizen || {};
+                    var name = citizen.fullName || citizen.full_name || 'â€”';
+                    var phone = citizen.phoneNumber || citizen.phone || 'â€”';
+                    var photo = r.imageUrl || r.photo_url || null;
+                    var ref = r.referenceNumber || r.reference_number || String(r.id);
 
-                    var photo = 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop&q=80';
-                    if (r.photos && r.photos.length > 0 && r.photos[0].cloudinary_url) {
-                        photo = r.photos[0].cloudinary_url;
-                    } else if (r.category === 'environmental') {
-                        photo = 'https://images.unsplash.com/photo-1621451537084-482c73073a0f?w=400&h=300&fit=crop&q=80';
-                    }
+                    var imgHtml = photo ?
+                        '<img class="vm-photo" src="' + photo + '" alt="' + concern + '" onerror="this.style.display=\'none\'" />' :
+                        '<div class="vm-photo" style="background:var(--gray-100);display:flex;align-items:center;justify-content:center;">' +
+                        '<span class="material-symbols-outlined" style="font-size:40px;color:var(--gray-300);">image</span></div>';
 
+                    var actLog = r.activityLog || [];
                     var tlHtml = '';
-                    if (r.timeline && r.timeline.length > 0) {
-                        var rows = r.timeline.map(function(t) {
+                    if (actLog.length > 0) {
+                        var rows = actLog.map(function(a) {
                             return '<div class="vm-tl-row">' +
-                                '<div class="vm-tl-dot' + (t.to_status === 'resolved' ? ' done' : '') + '"></div>' +
+                                '<div class="vm-tl-dot' + (a.status === 'Resolved' ? ' done' : '') + '"></div>' +
                                 '<div>' +
-                                '<div class="vm-tl-note">' + (t.note || t.action) + '</div>' +
-                                '<div class="vm-tl-time">' + fmtDate(t.created_at) + '</div>' +
+                                '<div class="vm-tl-note">' + (a.title || a.status) + '</div>' +
+                                '<div class="vm-tl-time">' + fmtDate(a.timestamp || a.created_at) + '</div>' +
                                 '</div></div>';
                         });
                         tlHtml = '<div class="vm-tl"><div class="vm-tl-h">Status Timeline</div>' + rows.join('') + '</div>';
                     }
 
                     content.innerHTML =
+                        '<div>' + imgHtml + '</div>' +
                         '<div>' +
-                        '<img class="vm-photo" src="' + photo + '" alt="' + r.title + '" ' +
-                        'onerror="this.src=\'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop&q=80\'" />' +
-                        '</div>' +
-                        '<div>' +
-                        '<div class="vm-badges">' + catBadge +
-                        '<span class="badge badge-validation"><span class="material-symbols-outlined">schedule</span>Pending Validation</span>' +
-                        '</div>' +
-                        '<div class="vm-title">' + r.title + '</div>' +
-                        '<div class="vm-loc"><span class="material-symbols-outlined" style="font-size:14px;">location_on</span>' +
-                        (r.barangay || '—') + ', Digos City</div>' +
+                        '<div class="vm-badges">' + Utils.categoryBadge(cat) + ' ' + Utils.statusBadge(r.status) + '</div>' +
+                        '<div class="vm-title">' + concern + '</div>' +
+                        '<div class="vm-loc"><span class="material-symbols-outlined" style="font-size:14px">location_on</span>' + (r.barangay || 'â€”') + ', Digos City</div>' +
                         '<div class="vm-dlabel">Description</div>' +
-                        '<div class="vm-desc">' + (r.description || '—') + '</div>' +
+                        '<div class="vm-desc">' + (r.description || 'â€”') + '</div>' +
                         '<div class="vm-meta">' +
-                        '<div class="vm-meta-item"><strong>' + r.reference_no + '</strong>Reference No.</div>' +
-                        '<div class="vm-meta-item"><strong>' + (r.submitted_by || '—') + '</strong>Submitted By</div>' +
-                        '<div class="vm-meta-item"><strong>' + (r.submitted_contact || '—') + '</strong>Contact</div>' +
+                        '<div class="vm-meta-item"><strong>' + ref + '</strong>Reference No.</div>' +
+                        '<div class="vm-meta-item"><strong>' + name + '</strong>Submitted By</div>' +
+                        '<div class="vm-meta-item"><strong>' + phone + '</strong>Contact</div>' +
                         '<div class="vm-meta-item"><strong>' + fmtDate(r.created_at) + '</strong>Date Submitted</div>' +
                         '</div>' +
                         tlHtml +
@@ -2098,64 +2136,57 @@
             if (activeReport) openAssign(activeReport.id);
         }
 
-        // ── Assign form (full page view) ──────────────────────
+        // â”€â”€ Assign form (full page view) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function openAssign(id) {
             var r = findReport(id) || activeReport;
             if (!r) return;
             activeReport = r;
 
-            // Show form immediately with placeholder photo while detail loads
-            var fallback = r.category === 'environmental' ?
-                'https://images.unsplash.com/photo-1621451537084-482c73073a0f?w=240&h=200&fit=crop&q=80' :
-                'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=240&h=200&fit=crop&q=80';
+            var cat = normCategory(r.category);
+            var concern = r.concern || r.issue || 'â€”';
+            var ref = r.referenceNumber || r.reference_number || String(r.id);
+            var citizen = r.citizen || {};
+            var name = citizen.fullName || citizen.full_name || 'â€”';
+            var photo = r.imageUrl || r.photo_url || null;
 
-            document.getElementById('afPhoto').src = fallback;
-            document.getElementById('afRef').textContent = r.reference_no;
-            document.getElementById('afIssue').textContent = r.title;
-            document.getElementById('afBarangay').textContent = r.barangay || '—';
+            // Photo â€” use real URL or hide
+            var imgEl = document.getElementById('afPhoto');
+            if (photo) {
+                imgEl.src = photo;
+                imgEl.style.display = 'block';
+            } else {
+                imgEl.style.display = 'none';
+            }
+
+            document.getElementById('afRef').textContent = ref;
+            document.getElementById('afIssue').textContent = concern;
+            document.getElementById('afBarangay').textContent = r.barangay || 'â€”';
             document.getElementById('afDate').textContent = fmtDate(r.created_at);
-            document.getElementById('afSubmittedBy').textContent = r.submitted_by || '—';
+            document.getElementById('afSubmittedBy').textContent = name;
+            document.getElementById('afCategory').innerHTML = Utils.categoryBadge(cat);
 
-            var catBadge = r.category === 'infrastructure' ?
-                '<span class="badge-infra"><span class="material-symbols-outlined">construction</span>Infrastructure</span>' :
-                '<span class="badge-env"><span class="material-symbols-outlined">eco</span>Environmental</span>';
-            document.getElementById('afCategory').innerHTML = catBadge;
-
-            // Fetch full detail to get actual photo
-            Api.get('/api/reports/' + id)
-                .then(function(json) {
-                    if (!json || !json.success) return;
-                    var detail = json.data;
-                    if (detail.photos && detail.photos.length > 0 && detail.photos[0].cloudinary_url) {
-                        document.getElementById('afPhoto').src = detail.photos[0].cloudinary_url;
-                    }
-                })
-                .catch(function() {});
-
-            // Set recommended office
-            var rec = recOffice(r.category);
-            var ceoBadge = document.getElementById('afCEOBadge');
-            var cenroBadge = document.getElementById('afCENROBadge');
+            // Recommended office
+            var rec = cat === 'Environmental' || cat === 'Environment' ? 'CENRO' : 'CEO';
             var ceoCard = document.getElementById('afOfficeCEO');
             var cenroCard = document.getElementById('afOfficeCENRO');
+            var ceoBadge = document.getElementById('afCEOBadge');
+            var cenroBadge = document.getElementById('afCENROBadge');
 
             if (rec === 'CEO') {
                 ceoCard.classList.add('sel');
                 cenroCard.classList.remove('sel');
                 ceoBadge.style.display = 'inline';
                 cenroBadge.style.display = 'none';
-                document.getElementById('afWhyDesc').textContent =
-                    'This office is responsible for infrastructure maintenance and repairs in the city.';
+                document.getElementById('afWhyDesc').textContent = 'This office is responsible for infrastructure maintenance and repairs in the city.';
             } else {
                 cenroCard.classList.add('sel');
                 ceoCard.classList.remove('sel');
                 cenroBadge.style.display = 'inline';
                 ceoBadge.style.display = 'none';
-                document.getElementById('afWhyDesc').textContent =
-                    'CENRO handles all environmental concerns including waste management, soil erosion, and vegetation clearing.';
+                document.getElementById('afWhyDesc').textContent = 'CENRO handles all environmental concerns including waste management, soil erosion, and vegetation clearing.';
             }
 
-            // Reset form fields
+            // Reset form
             document.getElementById('afOtherSelect').value = '';
             document.querySelectorAll('.af-pp').forEach(function(p) {
                 p.classList.remove('sel');
@@ -2212,7 +2243,8 @@
             el.classList.add('sel');
         }
 
-        function submitAssignForm() {
+        // â”€â”€ Submit assignment â€” real API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        async function submitAssignForm() {
             if (!activeReport) return;
 
             var selCard = document.querySelector('.af-office-card.sel');
@@ -2221,61 +2253,76 @@
             var selPill = document.querySelector('.af-pp.sel');
             var priority = selPill ? selPill.getAttribute('data-p') : 'medium';
             var notes = document.getElementById('afNotes').value.trim();
-            var btn = document.getElementById('afSubmitBtn');
 
             if (!office) {
                 Utils.showToast('Please select an office.', 'error');
                 return;
             }
 
+            // Look up government office id from abbreviation
+            var officeJson = await Api.get('/api/admin/offices').catch(function() {
+                return null;
+            });
+            var offices = (officeJson && officeJson.success) ?
+                ((officeJson.data && officeJson.data.data) ? officeJson.data.data : (officeJson.data || [])) : [];
+            var officeObj = offices.find(function(o) {
+                return o.abbreviation === office || o.name.includes(office);
+            });
+            var officeId = officeObj ? officeObj.id : null;
+
+            if (!officeId) {
+                // fallback: try assign with abbreviation directly
+                officeId = office;
+            }
+
+            var btn = document.getElementById('afSubmitBtn');
             btn.disabled = true;
-            btn.innerHTML = '<span class="material-symbols-outlined" style="animation:spin 1s linear infinite;">sync</span> Assigning...';
+            btn.innerHTML = '<span class="material-symbols-outlined" style="animation:spin 1s linear infinite">sync</span> Assigning...';
 
-            var payload = {
-                assigned_to: office,
-                priority: priority
-            };
-            if (notes) payload.notes = notes;
+            var reportId = activeReport.id;
 
-            Api.post('/api/reports/' + activeReport.id + '/assign', payload)
-                .then(function(json) {
-                    if (!json || !json.success) {
-                        throw new Error(json && json.message ? json.message : 'Assignment failed.');
-                    }
-                    var names = {
-                        CEO: 'City Engineering Office',
-                        CENRO: 'CENRO'
-                    };
-                    document.getElementById('successOfficeName').textContent = names[office] || office;
+            Api.action('POST', '/api/admin/citizen-reports/' + reportId + '/assign', {
+                office_id: officeId,
+                priority: priority,
+                notes: notes || undefined
+            }, {
+                loading: 'Assigning report\u2026',
+                success: null, // we handle success manually below
+                errorTitle: 'Assignment Failed',
+                silent: false,
+                onAction: function() {}
+            }).then(function(json) {
+                if (!json) return; // CwModal.error already shown
+                var names = {
+                    CEO: 'City Engineering Office',
+                    CENRO: 'CENRO'
+                };
+                document.getElementById('successOfficeName').textContent = officeObj ? officeObj.name : (names[office] || office);
 
-                    closeAssignForm();
-                    allReports = allReports.filter(function(r) {
-                        return r.id !== activeReport.id;
-                    });
-                    activeReport = null;
-                    applyFilters();
-                    loadStats();
-
-                    document.getElementById('successOverlay').classList.add('open');
-                    document.getElementById('successModal').classList.add('open');
-                })
-                .catch(function(e) {
-                    Utils.showToast(e.message || 'Failed to assign report.', 'error');
-                })
-                .finally(function() {
-                    btn.disabled = false;
-                    btn.innerHTML = '<span class="material-symbols-outlined">send</span> Assign Report';
+                closeAssignForm();
+                allReports = allReports.filter(function(r) {
+                    return r.id !== reportId;
                 });
+                activeReport = null;
+                applyFilters();
+                loadStats();
+
+                document.getElementById('successOverlay').classList.add('open');
+                document.getElementById('successModal').classList.add('open');
+            }).finally(function() {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-symbols-outlined">send</span> Assign Report';
+            });
         }
 
-        function closeAssign() {} // kept for modal close button compatibility
+        function closeAssign() {}
+
         function closeAllModals() {
             closeView();
         }
 
-        function selectPP(el) {} // modal pills — unused now
+        function selectPP(el) {}
 
-        // ── Success modal ──────────────────────────────────────
         function closeSuccess() {
             document.getElementById('successModal').classList.remove('open');
             document.getElementById('successOverlay').classList.remove('open');

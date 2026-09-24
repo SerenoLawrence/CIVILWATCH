@@ -12,7 +12,7 @@ class ApiConstants {
   ApiConstants._();
 
   // ── Base ────────────────────────────────────────────────────────────────
-  static const String baseUrl = 'http://10.0.7.127:8000/api';
+  static const String baseUrl = 'http://127.0.0.1:8000/api';
 
   // ── Health ──────────────────────────────────────────────────────────────
   static const String ping = '$baseUrl/ping';

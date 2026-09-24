@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -77,7 +79,8 @@ class _ReportReviewScreenState extends State<ReportReviewScreen> {
     final additionalDetails = data['additionalDetails'] as String? ??
         data['description'] as String? ?? '';
     final hasPhoto = data['hasPhoto'] == true;
-    final photoFile = data['photoFile'] as XFile?;
+    final photoFile  = data['photoFile']  as XFile?;
+    final photoBytes = data['photoBytes'] as Uint8List?;
 
     final catColor = AppHelpers.getCategoryColor(category);
     final catBg = AppHelpers.getCategoryBgColor(category);
@@ -179,7 +182,7 @@ class _ReportReviewScreenState extends State<ReportReviewScreen> {
                         _ReviewRow(
                           icon: Icons.camera_alt_rounded,
                           label: 'Photo',
-                          child: hasPhoto && photoFile != null
+                          child: hasPhoto && (photoBytes != null || photoFile != null)
                               ? GestureDetector(
                                   onTap: () => showDialog(
                                     context: context,
@@ -192,8 +195,10 @@ class _ReportReviewScreenState extends State<ReportReviewScreen> {
                                         backgroundColor: Colors.transparent,
                                         body: Center(
                                           child: InteractiveViewer(
-                                            child: Image.file(
-                                                File(photoFile.path)),
+                                            child: _crossPlatformImage(
+                                              photoBytes, photoFile,
+                                              fit: BoxFit.contain,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -201,8 +206,8 @@ class _ReportReviewScreenState extends State<ReportReviewScreen> {
                                   ),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(10),
-                                    child: Image.file(
-                                      File(photoFile.path),
+                                    child: _crossPlatformImage(
+                                      photoBytes, photoFile,
                                       width: 80,
                                       height: 60,
                                       fit: BoxFit.cover,
@@ -487,4 +492,30 @@ class _Chip extends StatelessWidget {
       ),
     );
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cross-platform image builder
+// Uses Image.memory (bytes) on Web, Image.file on mobile.
+// ─────────────────────────────────────────────────────────────────────────────
+Widget _crossPlatformImage(
+  Uint8List? bytes,
+  XFile? file, {
+  double? width,
+  double? height,
+  BoxFit fit = BoxFit.cover,
+}) {
+  if (bytes != null) {
+    return Image.memory(bytes, width: width, height: height, fit: fit);
+  }
+  if (!kIsWeb && file != null) {
+    return Image.file(File(file.path), width: width, height: height, fit: fit);
+  }
+  // Fallback placeholder
+  return Container(
+    width: width,
+    height: height,
+    color: const Color(0xFF1A2A3A),
+    child: const Icon(Icons.image_rounded, color: Colors.white54, size: 28),
+  );
 }

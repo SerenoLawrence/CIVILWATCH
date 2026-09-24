@@ -6,6 +6,7 @@ import '../../core/routes/app_routes.dart';
 import '../../core/state/app_state.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/buttons/primary_button.dart';
+import '../../widgets/common/app_dialog.dart';
 import '../../widgets/inputs/otp_box.dart';
 
 class OtpScreen extends StatefulWidget {
@@ -25,7 +26,6 @@ class OtpScreen extends StatefulWidget {
 class _OtpScreenState extends State<OtpScreen>
     with SingleTickerProviderStateMixin {
   String _otp = '';
-  bool _isLoading = false;
   bool _isSending = false;
   bool _sendFailed = false;
 
@@ -84,17 +84,17 @@ class _OtpScreenState extends State<OtpScreen>
     setState(() => _isSending = false);
 
     if (result.success) {
-      // Laravel returns the OTP in dev mode — show it so you can test
-      // without a real SMS provider. Remove this before going live.
       if (result.otp != null) {
         setState(() => _devOtp = result.otp);
       }
       _startTimer();
     } else {
       setState(() => _sendFailed = true);
-      _showSnack(
-        result.error ?? 'Failed to send OTP. Is Laravel running?',
-        isError: true,
+      AppDialog.error(
+        context,
+        title: 'Could Not Send OTP',
+        message: result.error ?? 'Failed to send OTP. Is Laravel running?',
+        actionLabel: 'OK',
       );
     }
   }
@@ -105,10 +105,7 @@ class _OtpScreenState extends State<OtpScreen>
     _timer?.cancel();
     setState(() => _resendSeconds = 60);
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (!mounted) {
-        t.cancel();
-        return;
-      }
+      if (!mounted) { t.cancel(); return; }
       if (_resendSeconds == 0) {
         t.cancel();
       } else {
@@ -122,15 +119,26 @@ class _OtpScreenState extends State<OtpScreen>
   Future<void> _resend() async {
     await _sendOtp();
     if (!mounted) return;
-    _showSnack('OTP resent to ${widget.phoneNumber}', isError: false);
+    if (!_sendFailed) {
+      AppDialog.success(
+        context,
+        title: 'OTP Sent',
+        message: 'A new code was sent to ${widget.phoneNumber}.',
+        actionLabel: 'OK',
+      );
+    }
   }
 
   Future<void> _verify() async {
     if (_otp.length != 6) {
-      _showSnack('Please enter the 6-digit OTP', isError: true);
+      AppDialog.error(context,
+          title: 'Code Required',
+          message: 'Please enter the 6-digit code we sent you.',
+          actionLabel: 'OK');
       return;
     }
-    setState(() => _isLoading = true);
+
+    AppDialog.loading(context, message: 'Verifying your code…');
 
     final result = await AuthService.instance.verifyOtp(
       widget.phoneNumber,
@@ -138,22 +146,23 @@ class _OtpScreenState extends State<OtpScreen>
     );
 
     if (!mounted) return;
-    setState(() => _isLoading = false);
+    AppDialog.hide(context);
 
     if (!result.success) {
-      _showSnack(result.error ?? 'Invalid OTP. Please try again.', isError: true);
+      AppDialog.error(context,
+          title: 'Invalid Code',
+          message: result.error ?? 'The code is incorrect or has expired. Tap Resend to get a new one.',
+          actionLabel: 'Try Again');
       return;
     }
 
     if (result.isNewUser) {
-      // New user — go to Register screen to complete profile
       Navigator.pushNamed(
         context,
         AppRoutes.register,
         arguments: {'phone': widget.phoneNumber},
       );
     } else {
-      // Returning user — token already saved, load data then go Home
       if (result.token != null) {
         final user = AuthService.instance.currentUser;
         if (user != null) {
@@ -167,20 +176,6 @@ class _OtpScreenState extends State<OtpScreen>
         (route) => false,
       );
     }
-  }
-
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
-  void _showSnack(String message, {required bool isError}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? const Color(0xFFDC2626) : AppColors.primary,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
   }
 
   String get _timerText {
@@ -413,7 +408,7 @@ class _OtpScreenState extends State<OtpScreen>
                 PrimaryButton(
                   label: 'Verify',
                   icon: Icons.verified_user_rounded,
-                  isLoading: _isLoading,
+                  isLoading: false,
                   onPressed: _verify,
                 ),
                 const SizedBox(height: 14),

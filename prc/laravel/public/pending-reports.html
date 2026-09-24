@@ -201,15 +201,15 @@
                 const citizen = r.citizen || {};
                 const name = citizen.fullName || citizen.full_name || '—';
                 const phone = citizen.phoneNumber || citizen.phone || '—';
-                const date = r.submittedAt ?
-                    new Date(r.submittedAt).toLocaleDateString('en-PH', {
+                const date = (r.submittedAt || r.created_at) ?
+                    new Date(r.submittedAt || r.created_at).toLocaleDateString('en-PH', {
                         month: 'short',
                         day: 'numeric',
                         year: 'numeric'
                     }) :
                     '—';
-                const time = r.submittedAt ?
-                    new Date(r.submittedAt).toLocaleTimeString('en-PH', {
+                const time = (r.submittedAt || r.created_at) ?
+                    new Date(r.submittedAt || r.created_at).toLocaleTimeString('en-PH', {
                         hour: '2-digit',
                         minute: '2-digit'
                     }) :
@@ -227,7 +227,7 @@
                        </div>`;
 
                 return `
-                <tr>
+                <tr data-report-id="${r.id}">
                   <td><span class="ref-id">${r.referenceNumber || r.reference_number || '—'}</span></td>
                   <td>${photoCell}</td>
                   <td>
@@ -366,6 +366,26 @@
         // ── Auto-refresh every 30s so new reports appear without manual reload ─
         loadPendingReports();
         setInterval(loadPendingReports, 30000);
+
+        // ── If returning from approval/rejection, reload reports ─────────────
+        // Set flag when leaving page (before navigation to report-details or assign-office)
+        window.addEventListener('beforeunload', function() {
+            sessionStorage.setItem('pending-reports-needs-refresh', 'true');
+        });
+
+        // Check if we're returning from approval workflow
+        if (sessionStorage.getItem('pending-reports-needs-refresh') === 'true') {
+            sessionStorage.removeItem('pending-reports-needs-refresh');
+            loadPendingReports(); // Reload to remove approved reports
+        }
+
+        // Also listen for storage changes (if user approved in another tab)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'report-approved' && e.newValue === 'true') {
+                loadPendingReports();
+                localStorage.removeItem('report-approved');
+            }
+        });
     </script>
 </body>
 

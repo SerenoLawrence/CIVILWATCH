@@ -1,470 +1,672 @@
 <!DOCTYPE html>
 <html lang="en">
 <script>
-  (function(){
-    var role = localStorage.getItem('cw_role');
-    if (!role) { window.location.replace('index.html'); }
-    else if (role !== 'super_admin') {
-      window.location.replace(role === 'ceo' ? 'offices/ceo/dashboard.html' : 'offices/cenro/dashboard.html');
-    }
-  })();
+    (function() {
+        var role = localStorage.getItem('cw_role');
+        if (!role) {
+            window.location.replace('index.html');
+        } else if (role !== 'super_admin') {
+            window.location.replace(role === 'ceo' ? 'offices/ceo/dashboard.html' : 'offices/cenro/dashboard.html');
+        }
+    })();
 </script>
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Report Details — CIVILWATCH Admin</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-  <link rel="stylesheet" href="/css/variables.css" />
-  <link rel="stylesheet" href="/css/global.css" />
-  <link rel="stylesheet" href="/css/layout.css" />
-  <link rel="stylesheet" href="/css/sidebar.css" />
-  <link rel="stylesheet" href="/css/navbar.css" />
-  <link rel="stylesheet" href="/css/cards.css" />
-  <link rel="stylesheet" href="/css/buttons.css" />
-  <link rel="stylesheet" href="/css/tables.css" />
-  <link rel="stylesheet" href="/css/badges.css" />
-  <link rel="stylesheet" href="/css/responsive.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--primary);
-      cursor: pointer;
-      margin-bottom: 18px;
-      transition: var(--transition);
-      text-decoration: none;
-    }
-    .back-link:hover { color: var(--primary-dark); }
-    .back-link .material-symbols-outlined { font-size: 18px; }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report Details — CIVILWATCH Admin</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/css/variables.css" />
+    <link rel="stylesheet" href="/css/global.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/sidebar.css" />
+    <link rel="stylesheet" href="/css/navbar.css" />
+    <link rel="stylesheet" href="/css/cards.css" />
+    <link rel="stylesheet" href="/css/buttons.css" />
+    <link rel="stylesheet" href="/css/tables.css" />
+    <link rel="stylesheet" href="/css/badges.css" />
+    <link rel="stylesheet" href="/css/responsive.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--primary);
+            cursor: pointer;
+            margin-bottom: 18px;
+            transition: var(--transition);
+            text-decoration: none;
+        }
 
-    .details-layout {
-      display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 20px;
-      align-items: start;
-    }
+        .back-link:hover {
+            color: var(--primary-dark);
+        }
 
-    .incident-photo {
-      width: 100%;
-      height: 260px;
-      object-fit: cover;
-      border-radius: var(--radius-md);
-      background: var(--gray-100);
-      display: block;
-    }
+        .back-link .material-symbols-outlined {
+            font-size: 18px;
+        }
 
-    .info-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 18px;
-    }
+        .details-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 20px;
+            align-items: start;
+        }
 
-    .info-field {}
-    .info-field-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      color: var(--gray-400);
-      margin-bottom: 4px;
-    }
-    .info-field-value {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--gray-800);
-    }
+        .incident-photo {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            background: var(--gray-100);
+            display: block;
+        }
 
-    .section-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--gray-900);
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--gray-200);
-    }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 18px;
+        }
 
-    .desc-box {
-      background: var(--gray-50);
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-md);
-      padding: 14px;
-      font-size: 14px;
-      color: var(--gray-700);
-      line-height: 1.7;
-    }
+        .info-field {}
 
-    #detailMap { height: 180px; border-radius: var(--radius-md); margin-top: 10px; }
+        .info-field-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--gray-400);
+            margin-bottom: 4px;
+        }
 
-    /* Action buttons panel */
-    .action-panel {
-      background: var(--white);
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      padding: 20px;
-    }
+        .info-field-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
 
-    .reporter-card {
-      background: var(--gray-50);
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-md);
-      padding: 14px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-    .reporter-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-full);
-      background: var(--primary-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .reporter-avatar .material-symbols-outlined { font-size: 22px; color: var(--primary); }
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--gray-200);
+        }
 
-    .action-buttons { display: flex; flex-direction: column; gap: 10px; }
-    .action-divider { height: 1px; background: var(--gray-200); margin: 4px 0; }
+        .desc-box {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            font-size: 14px;
+            color: var(--gray-700);
+            line-height: 1.7;
+        }
 
-    /* Status timeline */
-    .timeline { display: flex; flex-direction: column; gap: 0; }
-    .timeline-step {
-      display: flex;
-      gap: 14px;
-      position: relative;
-    }
-    .timeline-line {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex-shrink: 0;
-    }
-    .timeline-dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      border: 2px solid var(--gray-300);
-      background: var(--white);
-      flex-shrink: 0;
-      z-index: 1;
-    }
-    .timeline-dot.done {
-      background: var(--primary);
-      border-color: var(--primary);
-    }
-    .timeline-dot.current {
-      background: var(--white);
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(26,86,219,0.15);
-    }
-    .timeline-connector {
-      width: 2px;
-      flex: 1;
-      min-height: 24px;
-      background: var(--gray-200);
-    }
-    .timeline-connector.done { background: var(--primary); }
-    .timeline-content {
-      padding-bottom: 18px;
-      flex: 1;
-    }
-    .timeline-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--gray-700);
-      padding-top: 0px;
-      line-height: 1;
-      margin-bottom: 2px;
-    }
-    .timeline-title.active { color: var(--primary); }
-    .timeline-date { font-size: 11px; color: var(--gray-400); }
-  </style>
+        #detailMap {
+            height: 180px;
+            border-radius: var(--radius-md);
+            margin-top: 10px;
+        }
+
+        /* Action buttons panel */
+        .action-panel {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 20px;
+        }
+
+        .reporter-card {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .reporter-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .reporter-avatar .material-symbols-outlined {
+            font-size: 22px;
+            color: var(--primary);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .action-divider {
+            height: 1px;
+            background: var(--gray-200);
+            margin: 4px 0;
+        }
+
+        /* Status timeline */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .timeline-step {
+            display: flex;
+            gap: 14px;
+            position: relative;
+        }
+
+        .timeline-line {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .timeline-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--gray-300);
+            background: var(--white);
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        .timeline-dot.done {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .timeline-dot.current {
+            background: var(--white);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.15);
+        }
+
+        .timeline-connector {
+            width: 2px;
+            flex: 1;
+            min-height: 24px;
+            background: var(--gray-200);
+        }
+
+        .timeline-connector.done {
+            background: var(--primary);
+        }
+
+        .timeline-content {
+            padding-bottom: 18px;
+            flex: 1;
+        }
+
+        .timeline-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-700);
+            padding-top: 0px;
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+
+        .timeline-title.active {
+            color: var(--primary);
+        }
+
+        .timeline-date {
+            font-size: 11px;
+            color: var(--gray-400);
+        }
+    </style>
 </head>
+
 <body data-page="pending-reports">
-<div class="app-wrapper">
-  <aside class="sidebar" id="sidebar"></aside>
-  <div class="main-area" id="mainArea">
-    <nav class="navbar" id="navbar"></nav>
-    <main class="page-content">
+    <div class="app-wrapper">
+        <aside class="sidebar" id="sidebar"></aside>
+        <div class="main-area" id="mainArea">
+            <nav class="navbar" id="navbar"></nav>
+            <main class="page-content">
 
-      <a href="pending-reports.html" class="back-link">
-        <span class="material-symbols-outlined">arrow_back</span>
-        Back to Pending Reports
-      </a>
+                <a href="pending-reports.html" class="back-link">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    Back to Pending Reports
+                </a>
 
-      <div class="page-header">
-        <h1 class="page-title" id="pageTitle">Report Details</h1>
-      </div>
+                <div class="page-header">
+                    <h1 class="page-title" id="pageTitle">Report Details</h1>
+                </div>
 
-      <div class="details-layout">
-        <!-- Left: Incident Info -->
-        <div style="display:flex; flex-direction:column; gap:18px;">
+                <div class="details-layout">
+                    <!-- Left: Incident Info -->
+                    <div style="display:flex; flex-direction:column; gap:18px;">
 
-          <!-- Main info card -->
-          <div class="card card-padded">
-            <div class="section-title">Incident Information</div>
-            <img class="incident-photo" id="incidentPhoto" src="" alt="Incident photo" />
+                        <!-- Main info card -->
+                        <div class="card card-padded">
+                            <div class="section-title">Incident Information</div>
+                            <img class="incident-photo" id="incidentPhoto" src="" alt="Incident photo" />
 
-            <div class="info-grid" id="infoGrid">
-              <!-- Filled by JS -->
-            </div>
-          </div>
+                            <div class="info-grid" id="infoGrid">
+                                <!-- Filled by JS -->
+                            </div>
+                        </div>
 
-          <!-- Description -->
-          <div class="card card-padded">
-            <div class="section-title">Description</div>
-            <div class="desc-box" id="descBox">Loading description...</div>
-          </div>
+                        <!-- Description -->
+                        <div class="card card-padded">
+                            <div class="section-title">Description</div>
+                            <div class="desc-box" id="descBox">Loading description...</div>
+                        </div>
 
-          <!-- Location map -->
-          <div class="card card-padded">
-            <div class="section-title">Location</div>
-            <div style="font-size:13px;color:var(--gray-500);margin-bottom:6px;">
-              <span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;">location_on</span>
-              <span id="locationLabel">Aplaya, Digos City</span>
-            </div>
-            <div id="detailMap"></div>
-          </div>
+                        <!-- Location map -->
+                        <div class="card card-padded">
+                            <div class="section-title">Location</div>
+                            <div style="font-size:13px;color:var(--gray-500);margin-bottom:6px;">
+                                <span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;">location_on</span>
+                                <span id="locationLabel">Aplaya, Digos City</span>
+                            </div>
+                            <div id="detailMap"></div>
+                        </div>
 
-          <!-- Progress Timeline -->
-          <div class="card card-padded">
-            <div class="section-title">Status Timeline</div>
-            <div class="timeline" id="timeline"></div>
-          </div>
+                        <!-- Progress Timeline -->
+                        <div class="card card-padded">
+                            <div class="section-title">Status Timeline</div>
+                            <div class="timeline" id="timeline"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Action panel -->
+                    <div style="display:flex; flex-direction:column; gap:16px; position:sticky; top:84px;">
+
+                        <!-- Reporter Info -->
+                        <div class="action-panel">
+                            <div class="section-title" style="border-bottom:none; margin-bottom:10px; padding-bottom:0;">Reporter</div>
+                            <div class="reporter-card">
+                                <div class="reporter-avatar"><span class="material-symbols-outlined">person</span></div>
+                                <div>
+                                    <div style="font-size:14px;font-weight:700;color:var(--gray-900)" id="reporterName">Juan Dela Cruz</div>
+                                    <div style="font-size:12px;color:var(--gray-500)" id="reporterPhone">0912 345 6789</div>
+                                </div>
+                            </div>
+
+                            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                <span style="font-size:12px;color:var(--gray-500)">Reference No.</span>
+                                <span class="ref-id" id="refNo">CW-2026-241</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                <span style="font-size:12px;color:var(--gray-500)">Submitted</span>
+                                <span style="font-size:12px;font-weight:600;color:var(--gray-700)" id="submittedAt">—</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
+                                <span style="font-size:12px;color:var(--gray-500)">Status</span>
+                                <span id="statusBadge"></span>
+                            </div>
+
+                            <div class="action-divider"></div>
+                            <div class="action-buttons" style="margin-top:14px;">
+                                <button class="btn btn-primary btn-full" id="approveBtn">
+                                    <span class="material-symbols-outlined">verified</span>
+                                    Approve Report
+                                </button>
+                                <button class="btn btn-danger btn-full" id="rejectBtn">
+                                    <span class="material-symbols-outlined">cancel</span>
+                                    Reject Report
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Tip -->
+                        <div class="info-card info-card-tip">
+                            <div class="info-card-header">
+                                <div class="info-card-icon"><span class="material-symbols-outlined">lightbulb</span></div>
+                                <span class="info-card-title">Review Checklist</span>
+                            </div>
+                            <div class="info-card-list">
+                                <div class="info-card-list-item"><span class="material-symbols-outlined">check_circle</span>Photo is clear and relevant</div>
+                                <div class="info-card-list-item"><span class="material-symbols-outlined">check_circle</span>Location is correctly tagged</div>
+                                <div class="info-card-list-item"><span class="material-symbols-outlined">check_circle</span>Category is appropriate</div>
+                                <div class="info-card-list-item"><span class="material-symbols-outlined">check_circle</span>Description is adequate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Approve Modal -->
+                <div class="overlay" id="approveOverlay"></div>
+                <div class="modal" id="approveModal">
+                    <div class="modal-box">
+                        <div class="modal-header">
+                            <span class="modal-title">Approve Report</span>
+                            <button class="modal-close" id="approveModalClose"><span class="material-symbols-outlined">close</span></button>
+                        </div>
+                        <p style="font-size:14px;color:var(--gray-600);margin-bottom:20px;">
+                            Approving this report will move it to <strong>Pending Assignment</strong> and allow you to assign it to the appropriate office.
+                        </p>
+                        <div style="display:flex;gap:10px;justify-content:flex-end;">
+                            <button class="btn btn-secondary" id="approveCancelBtn">Cancel</button>
+                            <button class="btn btn-primary" id="approveConfirmBtn">
+                                <span class="material-symbols-outlined">verified</span> Confirm Approve
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reject Modal -->
+                <div class="overlay" id="rejectOverlay"></div>
+                <div class="modal" id="rejectModal">
+                    <div class="modal-box">
+                        <div class="modal-header">
+                            <span class="modal-title">Reject Report</span>
+                            <button class="modal-close" id="rejectModalClose"><span class="material-symbols-outlined">close</span></button>
+                        </div>
+                        <p style="font-size:14px;color:var(--gray-600);margin-bottom:14px;">
+                            Please provide a reason for rejecting this report. The reporter will be notified.
+                        </p>
+                        <div class="form-group">
+                            <label class="form-label">Reason for Rejection</label>
+                            <textarea class="form-textarea" placeholder="e.g., Duplicate report, Insufficient information, Outside jurisdiction..." rows="3"></textarea>
+                        </div>
+                        <div style="display:flex;gap:10px;justify-content:flex-end;">
+                            <button class="btn btn-secondary" id="rejectCancelBtn">Cancel</button>
+                            <button class="btn btn-danger" id="rejectConfirmBtn">
+                                <span class="material-symbols-outlined">cancel</span> Confirm Reject
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
         </div>
-
-        <!-- Right: Action panel -->
-        <div style="display:flex; flex-direction:column; gap:16px; position:sticky; top:84px;">
-
-          <!-- Reporter Info -->
-          <div class="action-panel">
-            <div class="section-title" style="border-bottom:none; margin-bottom:10px; padding-bottom:0;">Reporter</div>
-            <div class="reporter-card">
-              <div class="reporter-avatar"><span class="material-symbols-outlined">person</span></div>
-              <div>
-                <div style="font-size:14px;font-weight:700;color:var(--gray-900)" id="reporterName">Juan Dela Cruz</div>
-                <div style="font-size:12px;color:var(--gray-500)" id="reporterPhone">0912 345 6789</div>
-              </div>
-            </div>
-
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-              <span style="font-size:12px;color:var(--gray-500)">Reference No.</span>
-              <span class="ref-id" id="refNo">CW-2026-241</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-              <span style="font-size:12px;color:var(--gray-500)">Submitted</span>
-              <span style="font-size:12px;font-weight:600;color:var(--gray-700)" id="submittedAt">—</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
-              <span style="font-size:12px;color:var(--gray-500)">Status</span>
-              <span id="statusBadge"></span>
-            </div>
-
-            <div class="action-divider"></div>
-            <div class="action-buttons" style="margin-top:14px;">
-              <button class="btn btn-primary btn-full" id="approveBtn">
-                <span class="material-symbols-outlined">verified</span>
-                Approve Report
-              </button>
-              <button class="btn btn-danger btn-full" id="rejectBtn">
-                <span class="material-symbols-outlined">cancel</span>
-                Reject Report
-              </button>
-            </div>
-          </div>
-
-          <!-- Tip -->
-          <div class="info-card info-card-tip">
-            <div class="info-card-header">
-              <div class="info-card-icon"><span class="material-symbols-outlined">lightbulb</span></div>
-              <span class="info-card-title">Review Checklist</span>
-            </div>
-            <div class="info-card-list">
-              <div class="info-card-list-item"><span class="material-symbols-outlined">check_circle</span>Photo is clear and relevant</div>
-              <div class="info-card-list-item"><span class="material-symbols-outlined">check_circle</span>Location is correctly tagged</div>
-              <div class="info-card-list-item"><span class="material-symbols-outlined">check_circle</span>Category is appropriate</div>
-              <div class="info-card-list-item"><span class="material-symbols-outlined">check_circle</span>Description is adequate</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Approve Modal -->
-      <div class="overlay" id="approveOverlay"></div>
-      <div class="modal" id="approveModal">
-        <div class="modal-box">
-          <div class="modal-header">
-            <span class="modal-title">Approve Report</span>
-            <button class="modal-close" id="approveModalClose"><span class="material-symbols-outlined">close</span></button>
-          </div>
-          <p style="font-size:14px;color:var(--gray-600);margin-bottom:20px;">
-            Approving this report will move it to <strong>Pending Assignment</strong> and allow you to assign it to the appropriate office.
-          </p>
-          <div style="display:flex;gap:10px;justify-content:flex-end;">
-            <button class="btn btn-secondary" id="approveCancelBtn">Cancel</button>
-            <button class="btn btn-primary" id="approveConfirmBtn">
-              <span class="material-symbols-outlined">verified</span> Confirm Approve
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Reject Modal -->
-      <div class="overlay" id="rejectOverlay"></div>
-      <div class="modal" id="rejectModal">
-        <div class="modal-box">
-          <div class="modal-header">
-            <span class="modal-title">Reject Report</span>
-            <button class="modal-close" id="rejectModalClose"><span class="material-symbols-outlined">close</span></button>
-          </div>
-          <p style="font-size:14px;color:var(--gray-600);margin-bottom:14px;">
-            Please provide a reason for rejecting this report. The reporter will be notified.
-          </p>
-          <div class="form-group">
-            <label class="form-label">Reason for Rejection</label>
-            <textarea class="form-textarea" placeholder="e.g., Duplicate report, Insufficient information, Outside jurisdiction..." rows="3"></textarea>
-          </div>
-          <div style="display:flex;gap:10px;justify-content:flex-end;">
-            <button class="btn btn-secondary" id="rejectCancelBtn">Cancel</button>
-            <button class="btn btn-danger" id="rejectConfirmBtn">
-              <span class="material-symbols-outlined">cancel</span> Confirm Reject
-            </button>
-          </div>
-        </div>
-      </div>
-
-    </main>
-  </div>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="/js/utils.js"></script>
-<script src="/js/app.js"></script>
-<script>
-const reportData = {
-  'CW-2026-241': { issue:'Damaged Road', cat:'Infrastructure', barangay:'Aplaya', desc:'Deep potholes along the road causing difficulty for vehicles and potential accidents.', status:'Pending Validation', name:'Juan Dela Cruz', phone:'0912 345 6789', date:'May 21, 2026', time:'10:30 AM', lat:6.7500, lng:125.3540 },
-  'CW-2026-240': { issue:'Illegal Dumping', cat:'Environmental', barangay:'Carmen', desc:'Garbage is illegally dumped near the river side causing environmental hazard.', status:'Pending Validation', name:'Maria Santos', phone:'0998 765 4321', date:'May 21, 2026', time:'09:15 AM', lat:6.7420, lng:125.3480 },
-  'CW-2026-239': { issue:'Damaged Sidewalk', cat:'Infrastructure', barangay:'Zone II', desc:'Sidewalk is cracked and unsafe for pedestrians especially elderly.', status:'Pending Validation', name:'Pedro Reyes', phone:'0917 111 2222', date:'May 20, 2026', time:'04:45 PM', lat:6.7560, lng:125.3600 },
-};
-
-const id = Utils.getParam('id') || 'CW-2026-241';
-const r = reportData[id] || reportData['CW-2026-241'];
-
-// Fill info
-document.getElementById('pageTitle').textContent = r.issue;
-document.getElementById('incidentPhoto').src = getPhotoUrlLarge(r.issue);
-document.getElementById('descBox').textContent = r.desc;
-document.getElementById('locationLabel').textContent = `${r.barangay}, Digos City`;
-document.getElementById('reporterName').textContent = r.name;
-document.getElementById('reporterPhone').textContent = r.phone;
-document.getElementById('refNo').textContent = id;
-document.getElementById('submittedAt').textContent = `${r.date} · ${r.time}`;
-document.getElementById('statusBadge').innerHTML = Utils.statusBadge(r.status);
-
-document.getElementById('infoGrid').innerHTML = `
-  <div class="info-field">
-    <div class="info-field-label">Report ID</div>
-    <div class="info-field-value"><span class="ref-id">${id}</span></div>
-  </div>
-  <div class="info-field">
-    <div class="info-field-label">Issue</div>
-    <div class="info-field-value">${r.issue}</div>
-  </div>
-  <div class="info-field">
-    <div class="info-field-label">Category</div>
-    <div class="info-field-value">${Utils.categoryBadge(r.cat)}</div>
-  </div>
-  <div class="info-field">
-    <div class="info-field-label">Barangay</div>
-    <div class="info-field-value">${r.barangay}</div>
-  </div>
-  <div class="info-field">
-    <div class="info-field-label">Date Submitted</div>
-    <div class="info-field-value">${r.date}</div>
-  </div>
-  <div class="info-field">
-    <div class="info-field-label">Time Submitted</div>
-    <div class="info-field-value">${r.time}</div>
-  </div>
-  <div class="info-field">
-    <div class="info-field-label">Submitted By</div>
-    <div class="info-field-value">${r.name}</div>
-  </div>
-  <div class="info-field">
-    <div class="info-field-label">Status</div>
-    <div class="info-field-value">${Utils.statusBadge(r.status)}</div>
-  </div>
-`;
-
-// Timeline
-const steps = [
-  { label:'Submitted',         date:'May 21, 2026 · 10:30 AM', done:true,  current:false },
-  { label:'Pending Validation',date:'May 21, 2026 · 10:31 AM', done:false, current:true  },
-  { label:'Assigned to Office',date:'Awaiting approval',        done:false, current:false },
-  { label:'In Progress',       date:'—',                        done:false, current:false },
-  { label:'Resolved',          date:'—',                        done:false, current:false },
-];
-const tl = document.getElementById('timeline');
-tl.innerHTML = steps.map((s, i) => `
-  <div class="timeline-step">
-    <div class="timeline-line">
-      <div class="timeline-dot ${s.done ? 'done' : s.current ? 'current' : ''}"></div>
-      ${i < steps.length-1 ? `<div class="timeline-connector ${s.done ? 'done':''}"></div>` : ''}
     </div>
-    <div class="timeline-content">
-      <div class="timeline-title ${s.current ? 'active':''}">${s.label}</div>
-      <div class="timeline-date">${s.date}</div>
-    </div>
-  </div>
-`).join('');
 
-// Map
-const map = L.map('detailMap').setView([r.lat, r.lng], 16);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(map);
-const icon = L.divIcon({
-  className: '',
-  html: `<div style="width:28px;height:28px;border-radius:50%;background:#1A56DB;border:3px solid white;box-shadow:0 3px 8px rgba(0,0,0,0.3);"></div>`,
-  iconSize:[28,28], iconAnchor:[14,14]
-});
-L.marker([r.lat, r.lng], { icon }).addTo(map).bindPopup(`<strong>${r.issue}</strong><br>${r.barangay}`).openPopup();
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        var reportId = Utils.getParam('id');
+        var detailMap = null;
 
-// Modals
-function openModal(id) {
-  document.getElementById(id+'Modal')?.classList.add('active');
-  document.getElementById(id+'Overlay')?.classList.add('active');
-}
-function closeModal(id) {
-  document.getElementById(id+'Modal')?.classList.remove('active');
-  document.getElementById(id+'Overlay')?.classList.remove('active');
-}
+        // ── Helpers ───────────────────────────────────────────────
+        function fmtDate(str) {
+            if (!str) return '—';
+            var d = new Date(str);
+            if (isNaN(d)) return str;
+            return d.toLocaleDateString('en-PH', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                }) +
+                ' · ' +
+                d.toLocaleTimeString('en-PH', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+        }
 
-document.getElementById('approveBtn').onclick = () => openModal('approve');
-document.getElementById('approveModalClose').onclick = () => closeModal('approve');
-document.getElementById('approveCancelBtn').onclick = () => closeModal('approve');
-document.getElementById('approveOverlay').onclick = () => closeModal('approve');
-document.getElementById('approveConfirmBtn').onclick = () => {
-  closeModal('approve');
-  Utils.showToast('Report approved! Redirecting to Assign Office...', 'success');
-  setTimeout(() => location.href = `assign-office.html?id=${id}`, 1200);
-};
+        function normCategory(c) {
+            if (!c) return '';
+            var lc = c.toLowerCase();
+            if (lc === 'infrastructure') return 'Infrastructure';
+            if (lc === 'environment' || lc === 'environmental') return 'Environmental';
+            return c;
+        }
 
-document.getElementById('rejectBtn').onclick = () => openModal('reject');
-document.getElementById('rejectModalClose').onclick = () => closeModal('reject');
-document.getElementById('rejectCancelBtn').onclick = () => closeModal('reject');
-document.getElementById('rejectOverlay').onclick = () => closeModal('reject');
-document.getElementById('rejectConfirmBtn').onclick = () => {
-  closeModal('reject');
-  Utils.showToast('Report rejected. Reporter has been notified.', 'info');
-  setTimeout(() => location.href = 'pending-reports.html', 1200);
-};
-</script>
+        // ── Modal helpers ─────────────────────────────────────────
+        function openModal(id) {
+            var m = document.getElementById(id + 'Modal');
+            var o = document.getElementById(id + 'Overlay');
+            if (m) m.classList.add('active');
+            if (o) o.classList.add('active');
+        }
+
+        function closeModal(id) {
+            var m = document.getElementById(id + 'Modal');
+            var o = document.getElementById(id + 'Overlay');
+            if (m) m.classList.remove('active');
+            if (o) o.classList.remove('active');
+        }
+
+        // ── Load report from real API ─────────────────────────────
+        async function loadReport() {
+            if (!reportId) {
+                document.getElementById('pageTitle').textContent = 'Report not found';
+                return;
+            }
+
+            // Show skeletons while loading
+            document.getElementById('pageTitle').textContent = 'Loading…';
+            document.getElementById('incidentPhoto').style.display = 'none';
+            document.getElementById('descBox').textContent = 'Loading…';
+            document.getElementById('reporterName').textContent = '…';
+            document.getElementById('reporterPhone').textContent = '…';
+            document.getElementById('refNo').textContent = '…';
+            document.getElementById('submittedAt').textContent = '…';
+            document.getElementById('statusBadge').innerHTML = '';
+            document.getElementById('infoGrid').innerHTML = '';
+            document.getElementById('timeline').innerHTML = '';
+
+            try {
+                var json = await Api.get('/api/admin/citizen-reports/' + reportId);
+                if (!json || !json.success) throw new Error('Not found');
+                render(json.data);
+            } catch (e) {
+                document.getElementById('pageTitle').textContent = 'Report not found';
+                document.getElementById('descBox').textContent = 'Could not load this report. It may have been deleted or you do not have access.';
+                console.error('Report detail load failed:', e);
+            }
+        }
+
+        function render(r) {
+            var citizen = r.citizen || {};
+            var name = citizen.fullName || citizen.full_name || '—';
+            var phone = citizen.phoneNumber || citizen.phone || '—';
+            var ref = r.referenceNumber || r.reference_number || String(r.id);
+            var concern = r.concern || r.issue || '—';
+            var cat = normCategory(r.category);
+            var barangay = r.barangay || '—';
+            var status = r.status || '—';
+            var desc = r.description || '—';
+            var lat = parseFloat(r.latitude || r.lat) || 6.7498;
+            var lng = parseFloat(r.longitude || r.lng) || 125.3572;
+            var photo = r.imageUrl || r.photo_url || null;
+            var date = fmtDate(r.submittedAt || r.created_at);
+            var office = (r.assignedOffice && typeof r.assignedOffice === 'object') ?
+                r.assignedOffice.name :
+                (r.assignedOffice || null);
+
+            // Page title
+            document.getElementById('pageTitle').textContent = concern;
+
+            // Photo
+            var imgEl = document.getElementById('incidentPhoto');
+            if (photo) {
+                imgEl.src = photo;
+                imgEl.style.display = 'block';
+            } else {
+                imgEl.style.display = 'none';
+            }
+
+            // Description
+            document.getElementById('descBox').textContent = desc;
+
+            // Location label
+            document.getElementById('locationLabel').textContent = barangay + ', Digos City';
+
+            // Reporter panel
+            document.getElementById('reporterName').textContent = name;
+            document.getElementById('reporterPhone').textContent = phone;
+            document.getElementById('refNo').textContent = ref;
+            document.getElementById('submittedAt').textContent = date;
+            document.getElementById('statusBadge').innerHTML = Utils.statusBadge(status);
+
+            // Info grid
+            document.getElementById('infoGrid').innerHTML =
+                '<div class="info-field"><div class="info-field-label">Report ID</div>' +
+                '<div class="info-field-value"><span class="ref-id">' + ref + '</span></div></div>' +
+                '<div class="info-field"><div class="info-field-label">Issue</div>' +
+                '<div class="info-field-value">' + concern + '</div></div>' +
+                '<div class="info-field"><div class="info-field-label">Category</div>' +
+                '<div class="info-field-value">' + Utils.categoryBadge(cat) + '</div></div>' +
+                '<div class="info-field"><div class="info-field-label">Barangay</div>' +
+                '<div class="info-field-value">' + barangay + '</div></div>' +
+                '<div class="info-field"><div class="info-field-label">Date Submitted</div>' +
+                '<div class="info-field-value">' + date + '</div></div>' +
+                '<div class="info-field"><div class="info-field-label">Submitted By</div>' +
+                '<div class="info-field-value">' + name + '</div></div>' +
+                (office ? '<div class="info-field"><div class="info-field-label">Assigned Office</div>' +
+                    '<div class="info-field-value">' + office + '</div></div>' : '') +
+                '<div class="info-field"><div class="info-field-label">Status</div>' +
+                '<div class="info-field-value">' + Utils.statusBadge(status) + '</div></div>';
+
+            // Timeline from real activity log
+            var statusOrder = ['Submitted', 'Pending Validation', 'Assigned to Office', 'In Progress', 'Resolved'];
+            var activityLog = r.activityLog || [];
+            var tl = document.getElementById('timeline');
+            if (activityLog.length > 0) {
+                tl.innerHTML = activityLog.map(function(a, i) {
+                    var isDone = true;
+                    var isCurrent = i === activityLog.length - 1;
+                    return '<div class="timeline-step">' +
+                        '<div class="timeline-line">' +
+                        '<div class="timeline-dot ' + (isCurrent ? 'current' : 'done') + '"></div>' +
+                        (i < activityLog.length - 1 ? '<div class="timeline-connector done"></div>' : '') +
+                        '</div>' +
+                        '<div class="timeline-content">' +
+                        '<div class="timeline-title ' + (isCurrent ? 'active' : '') + '">' + (a.title || a.status) + '</div>' +
+                        '<div class="timeline-date">' + fmtDate(a.timestamp || a.created_at) + '</div>' +
+                        (a.description ? '<div class="timeline-date" style="margin-top:2px;color:var(--gray-500)">' + a.description + '</div>' : '') +
+                        '</div></div>';
+                }).join('');
+            } else {
+                // Build timeline from current status position
+                var currentIdx = statusOrder.indexOf(status);
+                tl.innerHTML = statusOrder.map(function(s, i) {
+                    var done = i < currentIdx;
+                    var current = i === currentIdx;
+                    return '<div class="timeline-step">' +
+                        '<div class="timeline-line">' +
+                        '<div class="timeline-dot ' + (done ? 'done' : current ? 'current' : '') + '"></div>' +
+                        (i < statusOrder.length - 1 ? '<div class="timeline-connector ' + (done ? 'done' : '') + '"></div>' : '') +
+                        '</div>' +
+                        '<div class="timeline-content">' +
+                        '<div class="timeline-title ' + (current ? 'active' : '') + '">' + s + '</div>' +
+                        '<div class="timeline-date">' + (done || current ? date : '—') + '</div>' +
+                        '</div></div>';
+                }).join('');
+            }
+
+            // Map
+            if (!detailMap) {
+                detailMap = L.map('detailMap').setView([lat, lng], 16);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19
+                }).addTo(detailMap);
+            } else {
+                detailMap.setView([lat, lng], 16);
+            }
+            var pinIcon = L.divIcon({
+                className: '',
+                html: '<div style="width:28px;height:28px;border-radius:50%;background:#1A56DB;border:3px solid white;box-shadow:0 3px 8px rgba(0,0,0,0.3);"></div>',
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+            });
+            L.marker([lat, lng], {
+                    icon: pinIcon
+                }).addTo(detailMap)
+                .bindPopup('<strong>' + concern + '</strong><br>' + barangay).openPopup();
+
+            // Show/hide Approve button based on status
+            var approveBtn = document.getElementById('approveBtn');
+            var rejectBtn = document.getElementById('rejectBtn');
+            if (status === 'Submitted' || status === 'Pending Validation') {
+                approveBtn.style.display = 'flex';
+                rejectBtn.style.display = 'flex';
+            } else {
+                approveBtn.style.display = 'none';
+                rejectBtn.style.display = 'none';
+            }
+        }
+
+        // ── Approve — calls real API ──────────────────────────────
+        document.getElementById('approveBtn').onclick = function() {
+            openModal('approve');
+        };
+        document.getElementById('approveModalClose').onclick = function() {
+            closeModal('approve');
+        };
+        document.getElementById('approveCancelBtn').onclick = function() {
+            closeModal('approve');
+        };
+        document.getElementById('approveOverlay').onclick = function() {
+            closeModal('approve');
+        };
+
+        document.getElementById('approveConfirmBtn').onclick = async function() {
+            closeModal('approve');
+            await Api.action('POST', '/api/admin/citizen-reports/' + reportId + '/validate', {}, {
+                loading: 'Approving report…',
+                success: 'Report approved and published to community map.',
+                successTitle: 'Report Approved',
+                errorTitle: 'Approval Failed',
+                onAction: function() {
+                    // Signal pending-reports to refresh if user returns to it
+                    sessionStorage.setItem('pending-reports-needs-refresh', 'true');
+                    location.href = 'assign-office.html?id=' + reportId;
+                }
+            });
+        };
+
+        // ── Reject — calls real API ───────────────────────────────
+        document.getElementById('rejectBtn').onclick = function() {
+            openModal('reject');
+        };
+        document.getElementById('rejectModalClose').onclick = function() {
+            closeModal('reject');
+        };
+        document.getElementById('rejectCancelBtn').onclick = function() {
+            closeModal('reject');
+        };
+        document.getElementById('rejectOverlay').onclick = function() {
+            closeModal('reject');
+        };
+
+        document.getElementById('rejectConfirmBtn').onclick = async function() {
+            var reason = document.querySelector('#rejectModal .form-textarea').value.trim();
+            closeModal('reject');
+            await Api.action('POST', '/api/admin/citizen-reports/' + reportId + '/status', {
+                status: 'Submitted',
+                description: reason || 'Report rejected by administrator.'
+            }, {
+                loading: 'Rejecting report…',
+                success: 'Report has been rejected.',
+                successTitle: 'Report Rejected',
+                errorTitle: 'Rejection Failed',
+                onAction: function() {
+                    location.href = 'pending-reports.html';
+                }
+            });
+        };
+
+        // ── Boot ──────────────────────────────────────────────────
+        loadReport();
+    </script>
 </body>
+
 </html>
